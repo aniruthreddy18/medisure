@@ -1,0 +1,48 @@
+{
+  "name": "@medisure/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "//": "Data layer and business logic. Consumed by the Next.js app in ../frontend via subpath imports. Ships TypeScript source; the frontend transpiles it (see next.config.ts transpilePackages).",
+  "exports": {
+    "./db": "./src/db.ts",
+    "./queries": "./src/queries.ts",
+    "./slots": "./src/slots.ts",
+    "./booking": "./src/booking.ts",
+    "./otp": "./src/otp.ts",
+    "./time": "./src/time.ts",
+    "./site": "./src/site.ts",
+    "./prisma": "./src/generated/prisma/client.ts",
+    "./prisma/enums": "./src/generated/prisma/enums.ts"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx --env-file=../.env prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force",
+    "db:dev": "prisma dev --name medisure",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "@date-fns/tz": "^1.4.1",
+    "bcryptjs": "^3.0.3",
+    "date-fns": "^4.4.0",
+    "pg": "^8.16.3",
+    "server-only": "^0.0.1",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.6",
+    "dotenv": "^17.2.4",
+    "prisma": "^7.9.1",
+    "tsx": "^4.21.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}

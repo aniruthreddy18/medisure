@@ -1,0 +1,139 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Design tokens — MediSure Hospital
+   Palette: deep teal (clinical trust) + warm coral (action).
+   Coral is reserved for booking CTAs so "book" is always the most
+   visually urgent thing on any screen. Red is reserved for
+   emergency only — never for a normal button.
+   --------------------------------------------------------------- */
+@theme {
+  /* Brand — teal */
+  --color-brand-50:  #f0faf9;
+  --color-brand-100: #d6f1ef;
+  --color-brand-200: #aee3e0;
+  --color-brand-300: #79cdc9;
+  --color-brand-400: #45afac;
+  --color-brand-500: #229090;
+  --color-brand-600: #14727a;
+  --color-brand-700: #0f5b63;
+  --color-brand-800: #0d4a51;
+  --color-brand-900: #0b3c43;
+  --color-brand-950: #04262b;
+
+  /* Accent — coral (booking CTAs) */
+  --color-accent-50:  #fff4f0;
+  --color-accent-100: #ffe4da;
+  --color-accent-200: #ffc7b4;
+  --color-accent-300: #ffa183;
+  --color-accent-400: #fa7550;
+  --color-accent-500: #ef5629;
+  --color-accent-600: #d43f16;
+  --color-accent-700: #b03113;
+  --color-accent-800: #8d2916;
+
+  /* Emergency only */
+  --color-emergency: #c81e1e;
+
+  /* Neutrals — warm grey, softer than pure slate */
+  --color-ink-50:  #f8f8f7;
+  --color-ink-100: #f1f1ef;
+  --color-ink-200: #e4e3e0;
+  --color-ink-300: #cbc9c5;
+  --color-ink-400: #a5a29c;
+  --color-ink-500: #7c7973;
+  --color-ink-600: #5f5c57;
+  --color-ink-700: #4a4844;
+  --color-ink-800: #333230;
+  --color-ink-900: #1e1d1c;
+
+  /* Semantic */
+  --color-background: #ffffff;
+  --color-surface: var(--color-ink-50);
+  --color-foreground: var(--color-ink-900);
+  --color-muted: var(--color-ink-500);
+  --color-border: var(--color-ink-200);
+
+  /* Type */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, sans-serif;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  p { text-wrap: pretty; }
+
+  /* Visible focus everywhere — required for the slot picker and slider
+     to be usable by keyboard (WCAG 2.4.7). */
+  :focus-visible {
+    outline: 3px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Respect users who get motion sickness — the hero autoplays. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Screen-reader-only, used by the slider's aria-live region */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+@layer components {
+  /* Shared form control. Kept in CSS rather than repeated on every input so
+     the booking forms stay consistent and touch targets never shrink. */
+  .input {
+    width: 100%;
+    min-height: 3rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    background: #fff;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.95rem;
+    color: var(--color-ink-900);
+    outline: none;
+  }
+  .input:focus {
+    border-color: var(--color-brand-500);
+  }
+  textarea.input {
+    min-height: 5rem;
+    resize: vertical;
+  }
+}

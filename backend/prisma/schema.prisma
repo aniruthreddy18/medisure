@@ -1,0 +1,666 @@
+// MediSure Hospital — data model
+//
+// Three conventions used throughout, chosen deliberately:
+//
+// 1. MONEY is stored as integer paise (`amountPaise`), never Float/Decimal.
+//    Razorpay transacts in paise, and integers cannot drift.
+//
+// 2. SLOT TIMES are wall-clock strings ("09:30") plus a @db.Date, not
+//    timestamps. Clinic hours are wall-clock facts — "Dr. Rao sees patients
+//    at 9:30" stays true regardless of server timezone. Storing UTC instants
+//    invites off-by-one-day bugs the front desk would have to untangle.
+//
+// 3. DOUBLE-BOOKING is prevented by `slotLock` (see Appointment), not by a
+//    composite unique on the raw columns — because cancelled appointments
+//    must release their slot while remaining in the table for reporting.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum ServiceType {
+  OP
+  HOME_PHYSIO
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AppointmentStatus {
+  HOLD // slot reserved, payment not started/settled
+  CONFIRMED // payment captured (or package session scheduled)
+  COMPLETED // patient seen
+  CANCELLED // cancelled by patient or hospital — slot released
+  NO_SHOW
+  EXPIRED // hold timed out before payment — slot released
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PackageStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+enum PackageBadge {
+  BEST_SELLER
+  MOST_TRUSTED
+  NEW
+}
+
+/// BUY  = standardised and priced, patient can self-serve checkout.
+/// ENQUIRE = needs clinical assessment before we can accept the case.
+/// Mirrors Apollo Homecare's split; stops us taking money for a case the
+/// physio may have to refuse.
+enum CtaMode {
+  BUY
+  ENQUIRE
+}
+
+enum AdminRole {
+  ADMIN
+  FRONTDESK
+}
+
+enum EnquiryStatus {
+  NEW
+  IN_PROGRESS
+  CLOSED
+}
+
+// ---------------------------------------------------------------------------
+// Clinical structure
+// ---------------------------------------------------------------------------
+
+model Department {
+  id        String  @id @default(cuid())
+  name      String
+  slug      String  @unique
+  icon      String? // lucide icon name
+  shortDesc String
+  longDesc  String? @db.Text
+  /// The three flagship specialities get the tabbed hero treatment.
+  isCore    Boolean @default(false)
+  order     Int     @default(0)
+  active    Boolean @default(true)
+
+  heroImage String?
+  metaTitle String?
+  metaDesc  String?
+
+  doctors      DoctorDepartment[]
+  conditions   Condition[]
+  appointments Appointment[]
+  testimonials Testimonial[]
+  secondOpins  SecondOpinion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, order])
+}
+
+/// Scaled-down version of Apollo's A–Z disease index: a handful of deep
+/// pages under the core specialities rather than an encyclopaedia.
+model Condition {
+  id           String     @id @default(cuid())
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  name    String
+  slug    String  @unique
+  summary String
+  content String? @db.Text
+  order   Int     @default(0)
+  active  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([departmentId, active])
+}
+
+model Doctor {
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+
+  photo           String?
+  designation     String // "Senior Consultant — Orthopaedic Surgeon"
+  qualifications  String // "MBBS, MS (Ortho), FRCS"
+  experienceYears Int
+  gender          Gender
+  /// Patients filter on this; matters most for home visits.
+  languages       String[]
+  bio             String?  @db.Text
+  /// Medical council registration — display builds trust and is expected
+  /// of healthcare sites.
+  regNumber       String?
+
+  /// Money in paise. opFee is the consultation fee; homeVisitFee applies to
+  /// a single home visit outside a package.
+  opFeePaise        Int  @default(0)
+  homeVisitFeePaise Int?
+
+  offersHomePhysio Boolean @default(false)
+  featured         Boolean @default(false)
+  order            Int     @default(0)
+  active           Boolean @default(true)
+
+  departments  DoctorDepartment[]
+  schedules    DoctorSchedule[]
+  exceptions   ScheduleException[]
+  appointments Appointment[]
+  packages     PackageBooking[]
+  secondOpins  SecondOpinion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, order])
+  @@index([offersHomePhysio, active])
+}
+
+model DoctorDepartment {
+  doctorId     String
+  departmentId String
+  doctor       Doctor     @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([doctorId, departmentId])
+  @@index([departmentId])
+}
+
+// ---------------------------------------------------------------------------
+// Availability
+// ---------------------------------------------------------------------------
+
+/// A recurring weekly working window. A doctor may hold several per day
+/// (morning OPD + evening OPD) and separate windows per service type.
+model DoctorSchedule {
+  id       String @id @default(cuid())
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  serviceType ServiceType
+  /// 0 = Sunday … 6 = Saturday
+  dayOfWeek   Int
+  /// Wall-clock "HH:mm", inclusive start, exclusive end.
+  startTime   String
+  endTime     String
+
+  slotMinutes Int @default(15)
+  /// Home visits need travel time between patients; added after each slot.
+  travelBufferMinutes Int @default(0)
+
+  location String?
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorId, serviceType, dayOfWeek, active])
+}
+
+/// Leave, conference, theatre day — or a one-off extra clinic.
+/// A full-day off wipes the day; a partial window subtracts just that range.
+model ScheduleException {
+  id       String @id @default(cuid())
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  date         DateTime @db.Date
+  isFullDayOff Boolean  @default(true)
+  startTime    String?
+  endTime      String?
+  reason       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([doctorId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Home physiotherapy packages
+// ---------------------------------------------------------------------------
+
+/// Home physio is sold as session packs (7/14/30) and condition-specific
+/// programmes, not one-off visits — see plan §2C.
+model ServicePackage {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  serviceType ServiceType @default(HOME_PHYSIO)
+
+  sessionCount Int
+  pricePaise   Int
+  /// Package dies this many days after purchase; keeps the physio's
+  /// calendar from being held hostage indefinitely.
+  validityDays Int         @default(60)
+  sessionMinutes Int       @default(60)
+
+  badge       PackageBadge?
+  ctaMode     CtaMode       @default(BUY)
+  /// Free-text tag used to match a package to a condition on the landing
+  /// page ("post-surgery", "stroke", "sports", "disc", "geriatric").
+  conditionTag String?
+
+  description  String  @db.Text
+  includes     String[]
+  image        String?
+  order        Int     @default(0)
+  active       Boolean @default(true)
+
+  bookings PackageBooking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, order])
+}
+
+/// One purchased package. Pay once, schedule sessions progressively.
+model PackageBooking {
+  id  String @id @default(cuid())
+  ref String @unique
+
+  packageId String
+  package   ServicePackage @relation(fields: [packageId], references: [id])
+
+  /// Assigned physio. Nullable so the front desk can allocate later if the
+  /// patient had no preference at checkout.
+  doctorId String?
+  doctor   Doctor? @relation(fields: [doctorId], references: [id])
+
+  patientName String
+  phone       String
+  email       String?
+  age         Int?
+  gender      Gender?
+
+  addressLine String
+  area        String?
+  pincode     String
+  landmark    String?
+  notes       String? @db.Text
+
+  sessionsTotal Int
+  sessionsUsed  Int @default(0)
+
+  amountPaise Int
+  status      PackageStatus @default(ACTIVE)
+  purchasedAt DateTime      @default(now())
+  expiresAt   DateTime
+
+  appointments Appointment[]
+  payments     Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+  @@index([status, expiresAt])
+}
+
+// ---------------------------------------------------------------------------
+// Appointments
+// ---------------------------------------------------------------------------
+
+model Appointment {
+  id  String @id @default(cuid())
+  ref String @unique
+
+  serviceType  ServiceType
+  doctorId     String
+  doctor       Doctor      @relation(fields: [doctorId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  /// Set when this visit is one session of a purchased package.
+  packageBookingId String?
+  packageBooking   PackageBooking? @relation(fields: [packageBookingId], references: [id])
+
+  patientName String
+  phone       String
+  email       String?
+  age         Int?
+  gender      Gender?
+  notes       String? @db.Text
+
+  date      DateTime @db.Date
+  startTime String
+  endTime   String
+
+  // Home visit only
+  addressLine String?
+  area        String?
+  pincode     String?
+  landmark    String?
+
+  status      AppointmentStatus @default(HOLD)
+  amountPaise Int               @default(0)
+
+  /// A HOLD past this instant is swept by the expiry cron and its slot
+  /// released. Null once the appointment is confirmed.
+  holdExpiresAt DateTime?
+
+  /// THE double-booking guard.
+  ///
+  /// Format: "<doctorId>|<yyyy-mm-dd>|<HH:mm>". Unique across the table,
+  /// but NULLABLE — and Postgres permits unlimited NULLs in a unique index.
+  /// Active appointments carry the lock; cancelling or expiring one sets it
+  /// to NULL, which frees the slot for rebooking while the row survives for
+  /// reporting. Two concurrent bookings for the same slot therefore collide
+  /// on a database constraint, not on application logic that can race.
+  slotLock String? @unique
+
+  cancelledBy  String?
+  cancelReason String?
+  cancelledAt  DateTime?
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorId, date])
+  @@index([status, holdExpiresAt])
+  @@index([phone])
+  @@index([date, status])
+}
+
+// ---------------------------------------------------------------------------
+// Payments
+// ---------------------------------------------------------------------------
+
+model Payment {
+  id       String @id @default(cuid())
+  provider String @default("razorpay")
+
+  appointmentId    String?
+  appointment      Appointment?    @relation(fields: [appointmentId], references: [id])
+  packageBookingId String?
+  packageBooking   PackageBooking? @relation(fields: [packageBookingId], references: [id])
+
+  orderId String  @unique
+  /// Razorpay payment id — unique so a replayed webhook cannot be applied
+  /// twice (idempotency).
+  paymentId String? @unique
+  signature String?
+
+  amountPaise Int
+  status      PaymentStatus @default(CREATED)
+  method      String?
+  failReason  String?
+
+  refundId          String?
+  refundedAmountPaise Int?
+  refundedAt        DateTime?
+
+  /// Raw webhook body, kept for dispute resolution.
+  rawPayload Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ---------------------------------------------------------------------------
+// Verification
+// ---------------------------------------------------------------------------
+
+/// Phone-first booking (Yashoda pattern): verify the number before taking
+/// details. Only the hash is stored, never the OTP itself.
+model PhoneVerification {
+  id        String   @id @default(cuid())
+  phone     String
+  otpHash   String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  verifiedAt DateTime?
+  /// Opaque token handed to the client after successful verification and
+  /// required by the booking endpoint.
+  token     String?  @unique
+  tokenExpiresAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([phone, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Service area
+// ---------------------------------------------------------------------------
+
+/// Home-physio serviceability. The client has not supplied the list yet, so
+/// the check stays behind SiteSetting `home_physio_pincode_check`; until it
+/// is enabled every pincode is accepted.
+model ServicePincode {
+  id       String  @id @default(cuid())
+  pincode  String  @unique
+  areaName String?
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Leads
+// ---------------------------------------------------------------------------
+
+/// Free second opinion. `reportUrls` point at a PRIVATE bucket and must only
+/// ever be served through short-lived signed URLs — these are health records.
+model SecondOpinion {
+  id String @id @default(cuid())
+
+  name        String
+  phone       String
+  email       String?
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  description String   @db.Text
+  reportUrls  String[]
+
+  assignedDoctorId String?
+  assignedDoctor   Doctor? @relation(fields: [assignedDoctorId], references: [id])
+
+  status EnquiryStatus @default(NEW)
+  notes  String?       @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model Enquiry {
+  id      String        @id @default(cuid())
+  name    String
+  phone   String
+  email   String?
+  subject String?
+  message String        @db.Text
+  source  String        @default("contact")
+  status  EnquiryStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+
+model Achievement {
+  id      String  @id @default(cuid())
+  title   String
+  caption String?
+  image   String?
+  year    Int?
+  /// Curated subset shown in the homepage hero slider.
+  showInHero Boolean @default(false)
+  /// Also surfaced in the "What's New" feed.
+  isNews  Boolean @default(false)
+  order   Int     @default(0)
+  active  Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([showInHero, active, order])
+}
+
+model Testimonial {
+  id          String  @id @default(cuid())
+  patientName String
+  photo       String?
+
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  /// Case-study shape — condition → treatment → outcome reads as credible;
+  /// a bare five-star quote does not.
+  condition String?
+  treatment String?
+  outcome   String?
+  quote     String  @db.Text
+  rating    Int?
+  videoUrl  String?
+
+  /// HARD GATE: written patient consent must be on file before publishing.
+  /// Required by the NMC advertising code and basic decency. The admin UI
+  /// must refuse to set `approved` while this is false.
+  consentOnFile Boolean @default(false)
+  approved      Boolean @default(false)
+
+  order  Int     @default(0)
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([approved, active, order])
+}
+
+model Video {
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  /// Prefer YouTube: the page loads a thumbnail facade and only pulls
+  /// YouTube's player after a click.
+  youtubeId   String?
+  fileUrl     String?
+  thumbnail   String?
+  category    String  @default("hospital")
+  order       Int     @default(0)
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, order])
+}
+
+model GalleryImage {
+  id       String  @id @default(cuid())
+  image    String
+  caption  String?
+  category String  @default("hospital")
+  order    Int     @default(0)
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model Insurer {
+  id     String  @id @default(cuid())
+  name   String
+  logo   String?
+  isTPA  Boolean @default(false)
+  order  Int     @default(0)
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([active, order])
+}
+
+model Faq {
+  id       String  @id @default(cuid())
+  question String
+  answer   String  @db.Text
+  category String  @default("general")
+  order    Int     @default(0)
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, active, order])
+}
+
+// ---------------------------------------------------------------------------
+// Admin
+// ---------------------------------------------------------------------------
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(FRONTDESK)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Every admin write lands here. Matters the day a booking "disappears" and
+/// the front desk and the doctor disagree about who cancelled it.
+model AuditLog {
+  id          String  @id @default(cuid())
+  adminUserId String?
+  adminUser   AdminUser? @relation(fields: [adminUserId], references: [id])
+
+  action   String
+  entity   String
+  entityId String?
+  meta     Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
