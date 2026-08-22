@@ -98,7 +98,11 @@ export function DoctorCard({
           {doctor.offersHomePhysio && (
             <span className="inline-flex items-center gap-1.5 font-medium text-brand-700">
               <HomeIcon className="size-3.5" aria-hidden="true" />
-              Home visits
+              {/* Not "his" visits — Dr. Dhanunjaya (currently the only
+                  offersHomePhysio doctor) doesn't personally go himself, his
+                  physiotherapy team does. Revisit this wording if a doctor
+                  who genuinely visits in person is ever added. */}
+              Home visits by team
             </span>
           )}
         </div>

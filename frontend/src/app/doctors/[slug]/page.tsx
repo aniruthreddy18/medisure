@@ -113,7 +113,9 @@ export default async function DoctorProfilePage({
                 {doctor.offersHomePhysio && (
                   <li className="inline-flex items-center gap-2 font-medium text-brand-800">
                     <HomeIcon className="size-4" aria-hidden="true" />
-                    Available for home visits
+                    {/* Same reasoning as DoctorCard: home visits are done by
+                        this doctor's team, not the doctor in person. */}
+                    Home visits by team
                   </li>
                 )}
               </ul>
@@ -236,7 +238,7 @@ export default async function DoctorProfilePage({
                   href="/home-physiotherapy"
                   className="mt-4 inline-block text-sm font-semibold text-brand-700 hover:underline"
                 >
-                  See home physiotherapy packages →
+                  More about home physiotherapy →
                 </Link>
               </div>
             )}
