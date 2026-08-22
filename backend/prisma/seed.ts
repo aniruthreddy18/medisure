@@ -20,42 +20,66 @@ import { Gender, ServiceType, PackageBadge, CtaMode, AdminRole } from "../src/ge
 const rupees = (r: number) => r * 100; // → paise
 
 async function seedDepartments() {
-  // Departments derived from the client's actual doctor list. The three the
-  // hospital wants highlighted are flagged isCore.
+  // The six the hospital wants highlighted on the homepage grid are flagged
+  // isCore, in the exact order requested. `order` is what queries actually
+  // sort by; the array is kept in the same order for readability.
   const departments = [
     {
-      slug: "physiotherapy",
-      name: "Physiotherapy & Rehabilitation",
-      icon: "Activity",
+      slug: "general-medicine",
+      name: "General Medicine",
+      icon: "HeartPulse",
       isCore: true,
       order: 1,
-      shortDesc: "Restore movement after injury, surgery or stroke — at the hospital or in your home.",
-      longDesc:
-        "Our physiotherapy team treats pain and restricted movement with hands-on therapy, graded exercise and rehabilitation planning, including a dedicated home physiotherapy service for patients who cannot travel.",
-    },
-    {
-      slug: "orthopaedics",
-      name: "Orthopaedics",
-      icon: "Bone",
-      isCore: true,
-      order: 2,
-      shortDesc: "Joint replacement, spine care, fracture and sports injury treatment.",
-      longDesc:
-        "The orthopaedic department manages the full range of bone and joint conditions — fractures, sports injuries, spine disorders, and knee and hip replacement — supported by on-site imaging and physiotherapy.",
+      shortDesc: "Everyday illness, diabetes, blood pressure and preventive health.",
     },
     {
       slug: "general-surgery",
       name: "General & Laparoscopic Surgery",
       icon: "Stethoscope",
       isCore: true,
-      order: 3,
+      order: 2,
       shortDesc: "Laparoscopic and open surgery with structured pre- and post-operative care.",
       longDesc:
         "Our surgeons perform laparoscopic and open procedures including hernia repair, gallbladder surgery, appendicectomy and proctology, with a defined assessment and follow-up pathway.",
     },
-    { slug: "general-medicine", name: "General Medicine", icon: "HeartPulse", isCore: false, order: 4, shortDesc: "Everyday illness, diabetes, blood pressure and preventive health." },
-    { slug: "paediatrics", name: "Paediatrics", icon: "Baby", isCore: false, order: 5, shortDesc: "Newborn, child and adolescent health, vaccination and growth care." },
-    { slug: "gynaecology-obstetrics", name: "Gynaecology & Obstetrics", icon: "HeartPulse", isCore: false, order: 6, shortDesc: "Women's health, pregnancy care and laparoscopic gynaecological surgery." },
+    {
+      slug: "orthopaedics",
+      name: "Orthopaedics",
+      icon: "Bone",
+      isCore: true,
+      order: 3,
+      shortDesc: "Joint replacement, spine care, fracture and sports injury treatment.",
+      longDesc:
+        "The orthopaedic department manages the full range of bone and joint conditions — fractures, sports injuries, spine disorders, and knee and hip replacement — supported by on-site imaging and physiotherapy.",
+    },
+    {
+      slug: "physiotherapy",
+      name: "Physiotherapy & Rehabilitation",
+      icon: "Activity",
+      isCore: true,
+      order: 4,
+      shortDesc: "Restore movement after injury, surgery or stroke — at the hospital or in your home.",
+      longDesc:
+        "Our physiotherapy team treats pain and restricted movement with hands-on therapy, graded exercise and rehabilitation planning, including a dedicated home physiotherapy service for patients who cannot travel.",
+    },
+    {
+      slug: "gynaecology-obstetrics",
+      name: "Gynaecology & Obstetrics",
+      // Was "HeartPulse" — duplicated General Medicine's icon on the homepage
+      // grid once both were core at the same time.
+      icon: "Venus",
+      isCore: true,
+      order: 5,
+      shortDesc: "Women's health, pregnancy care and laparoscopic gynaecological surgery.",
+    },
+    {
+      slug: "paediatrics",
+      name: "Paediatrics",
+      icon: "Baby",
+      isCore: true,
+      order: 6,
+      shortDesc: "Newborn, child and adolescent health, vaccination and growth care.",
+    },
     { slug: "gastroenterology", name: "Gastroenterology", icon: "Stethoscope", isCore: false, order: 7, shortDesc: "Digestive, liver and endoscopic care." },
     { slug: "ent", name: "ENT", icon: "Ear", isCore: false, order: 8, shortDesc: "Ear, nose and throat treatment and surgery." },
     { slug: "pulmonology", name: "Pulmonology", icon: "Wind", isCore: false, order: 9, shortDesc: "Asthma, COPD, sleep and respiratory care." },
