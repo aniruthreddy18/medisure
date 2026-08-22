@@ -120,6 +120,9 @@ export default async function DoctorProfilePage({
                 )}
               </ul>
 
+              {/* Home visits show as available (the badge above), not as a
+                  self-service booking link -- there's no online booking flow
+                  for them any more, only OP consultations. */}
               <div className="mt-7 flex flex-wrap gap-3">
                 <Link
                   href={`/book/op?doctor=${doctor.slug}`}
@@ -128,15 +131,6 @@ export default async function DoctorProfilePage({
                   <CalendarPlus className="size-4" aria-hidden="true" />
                   Book Appointment
                 </Link>
-                {doctor.offersHomePhysio && (
-                  <Link
-                    href={`/book/home-physio?doctor=${doctor.slug}`}
-                    className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-brand-700 bg-white px-6 font-semibold text-brand-800 transition-colors hover:bg-brand-50"
-                  >
-                    <HomeIcon className="size-4" aria-hidden="true" />
-                    Book Home Visit
-                  </Link>
-                )}
               </div>
             </div>
           </div>

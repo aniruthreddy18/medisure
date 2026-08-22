@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { HomeIcon, Clock, UserCheck, ShieldCheck, ArrowRight } from "lucide-react";
+import { HomeIcon, Phone, UserCheck, ShieldCheck, ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { DoctorCard } from "@/components/cards/DoctorCard";
 import { getHomePhysioDoctors, getFaqs } from "@medisure/backend/queries";
 import { site } from "@medisure/backend/site";
+import { formatPhone } from "@/lib/utils";
 
 // Content comes from the database and is edited by hospital staff, so this
 // page is regenerated at most every 5 minutes rather than frozen at build
@@ -18,10 +19,12 @@ export const metadata: Metadata = {
     "Qualified physiotherapists treat you at home for post-surgery, stroke, sports injury, back pain and geriatric care.",
 };
 
+// There's no self-service booking for home visits — reception arranges
+// them by phone, so the steps describe a call, not a form.
 const steps = [
-  { icon: HomeIcon, title: "Tell us where you are", text: "Enter your address and the condition you need help with." },
-  { icon: UserCheck, title: "Pick your physiotherapist", text: "Choose from our home-visit team and see their availability." },
-  { icon: Clock, title: "Book your first visit", text: "Book directly with your chosen physiotherapist for a home visit." },
+  { icon: UserCheck, title: "Browse our team", text: "See who's available for home visits below." },
+  { icon: Phone, title: "Call reception", text: "Tell us your address and the condition you need help with." },
+  { icon: HomeIcon, title: "We schedule your visit", text: "Reception arranges a physiotherapist and a time that works for you." },
   { icon: ShieldCheck, title: "Recover at home", text: "The same physiotherapist sees you through your recovery." },
 ];
 
@@ -50,6 +53,13 @@ export default async function HomePhysiotherapyPage() {
           <p className="mt-6 text-sm text-brand-200">
             {site.hours.homePhysio}
           </p>
+          <a
+            href={`tel:${site.phone.reception}`}
+            className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent-500 px-6 font-semibold text-white transition-colors hover:bg-accent-600"
+          >
+            <Phone className="size-4" aria-hidden="true" />
+            Call {formatPhone(site.phone.reception)} to book a visit
+          </a>
         </Container>
       </header>
 
