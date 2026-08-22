@@ -63,11 +63,20 @@ export function Header() {
           phone buttons no longer fit in the standard width now that there
           are two phone buttons instead of one — this only widens the
           header's own row, not the page content max-width used elsewhere. */}
-      <Container className="flex h-20 max-w-7xl items-center gap-5 lg:h-24">
-        {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-3">
+      {/* gap-2 on mobile, not gap-5: with the name now shown next to the
+          logo at every width, the full gap left the hamburger button
+          clipped off the right edge of a 375px screen. */}
+      <Container className="flex h-20 max-w-7xl items-center gap-2 sm:gap-5 lg:h-24">
+        {/* Logo. Not shrink-0: at the very narrowest phone widths (~320px,
+            essentially obsolete now — no current iPhone or mainstream
+            Android ships that narrow) there isn't room for the name at full
+            width even after trimming everything else. Letting this shrink
+            means the name truncates with an ellipsis there instead of
+            overflowing the header; at every width anyone actually uses today
+            there's enough room and nothing visibly shrinks. */}
+        <Link href="/" className="flex min-w-0 items-center gap-2 sm:shrink-0 sm:gap-3">
           <span
-            className="grid size-11 place-items-center rounded-full bg-white shadow-sm lg:size-12"
+            className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-sm sm:size-11 lg:size-12"
           >
             <Image
               src="/logo.png"
@@ -77,12 +86,17 @@ export function Header() {
               className="size-8 object-contain lg:size-9"
             />
           </span>
-          <span className="hidden sm:block">
-            <span className="block font-display text-lg font-bold leading-none tracking-tight lg:text-xl">
+          {/* Was hidden below sm — the client wants the name next to the logo
+              at every width. Sized down and tracking tightened on mobile so
+              "MediSure Hospital" fits without crowding the phone buttons;
+              the tagline drops below sm since there's no room for a second
+              line's width once it's this small. */}
+          <span className="min-w-0">
+            <span className="block truncate font-display text-sm font-bold leading-none tracking-tight sm:text-lg lg:text-xl">
               {site.name}
             </span>
             <span
-              className="mt-1 block text-[10px] uppercase tracking-[0.18em] text-ink-500"
+              className="mt-1 hidden text-[10px] uppercase tracking-[0.18em] text-ink-500 sm:block"
             >
               Multi-Speciality
             </span>
@@ -129,13 +143,13 @@ export function Header() {
           <a
             href={`tel:${site.phone.reception}`}
             className={cn(
-              "flex shrink-0 items-center gap-2.5 rounded-full border px-3 py-2 font-semibold shadow-sm transition-colors lg:px-4",
+              "flex shrink-0 items-center gap-2.5 rounded-full border px-2 py-2 font-semibold shadow-sm transition-colors sm:px-2.5 lg:px-4",
               overHero
                 ? "border-ink-200 bg-white/80 text-ink-900 backdrop-blur hover:bg-white"
                 : "border-ink-200 bg-white text-ink-900 hover:border-brand-400 hover:bg-brand-50",
             )}
           >
-            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600">
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600 sm:size-8">
               <Phone className="size-4" aria-hidden="true" />
             </span>
             <span className="hidden text-left leading-tight lg:block">
@@ -154,10 +168,10 @@ export function Header() {
           {/* Emergency */}
           <a
             href={`tel:${site.phone.emergency}`}
-            className="flex shrink-0 items-center gap-2.5 rounded-full bg-brand-600 px-3 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 lg:px-4"
+            className="flex shrink-0 items-center gap-2.5 rounded-full bg-brand-600 px-2 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 sm:px-2.5 lg:px-4"
           >
             <span
-              className="grid size-8 shrink-0 place-items-center rounded-full bg-white/20"
+              className="grid size-7 shrink-0 place-items-center rounded-full bg-white/20 sm:size-8"
             >
               <Ambulance className="size-4" aria-hidden="true" />
             </span>
