@@ -22,7 +22,10 @@ const serif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  // `||`, not `??` — an env var set to an empty string in the Vercel
+  // dashboard (as opposed to left unset) still needs to fall through, or
+  // `new URL("")` throws and takes down the entire build.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
     default: `${site.name} — ${site.tagline}`,
     template: `%s | ${site.name}`,
