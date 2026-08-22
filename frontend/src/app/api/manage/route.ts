@@ -2,12 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@medisure/backend/db";
 import { sendOtp, verifyOtp, consumeVerification, OtpError } from "@medisure/backend/otp";
-import {
-  releaseSlot,
-  createHold,
-  schedulePackageSession,
-  SlotUnavailableError,
-} from "@medisure/backend/booking";
+import { schedulePackageSession, SlotUnavailableError } from "@medisure/backend/booking";
 import { toDateKey } from "@medisure/backend/time";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +12,14 @@ export const dynamic = "force-dynamic";
  *
  * Every action is gated on an OTP sent to the number stored on the booking —
  * not to a number supplied in the request. A booking reference alone must
- * never be enough to cancel somebody's appointment, since references appear in
- * SMS, on printouts and over a patient's shoulder.
+ * never be enough to act on somebody's appointment, since references appear
+ * in SMS, on printouts and over a patient's shoulder.
+ *
+ * Cancel and reschedule are deliberately NOT self-service actions here — both
+ * go through reception by phone instead. An OTP re-check per visit is enough
+ * to safely *view* a booking, but there is no account/login behind it, so it
+ * is not a strong enough basis to let a patient silently cancel or move a
+ * booking on our own system of record from a stateless page.
  */
 const schema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("request-code"), ref: z.string().trim().min(4) }),
@@ -26,19 +27,6 @@ const schema = z.discriminatedUnion("action", [
     action: z.literal("verify-code"),
     ref: z.string().trim().min(4),
     code: z.string().trim().regex(/^\d{6}$/),
-  }),
-  z.object({
-    action: z.literal("cancel"),
-    ref: z.string().trim().min(4),
-    token: z.string().min(10),
-    reason: z.string().trim().max(300).optional(),
-  }),
-  z.object({
-    action: z.literal("reschedule"),
-    ref: z.string().trim().min(4),
-    token: z.string().min(10),
-    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    startTime: z.string().regex(/^\d{2}:\d{2}$/),
   }),
   z.object({
     action: z.literal("schedule-session"),
@@ -137,81 +125,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    if (data.action === "cancel") {
-      if (found.kind !== "appointment") {
-        return NextResponse.json(
-          { error: "Please cancel individual visits, or call us to cancel a package." },
-          { status: 400 },
-        );
-      }
-      const appt = found.appointment;
-      if (["CANCELLED", "COMPLETED", "EXPIRED"].includes(appt.status)) {
-        return NextResponse.json({ error: "This booking cannot be cancelled." }, { status: 400 });
-      }
-
-      await releaseSlot(appt.id, "CANCELLED", { cancelledBy: "patient", reason: data.reason });
-
-      // A cancelled package session goes back into the patient's allowance
-      // rather than being burnt — they paid for it.
-      if (appt.packageBookingId) {
-        await db.packageBooking.update({
-          where: { id: appt.packageBookingId },
-          data: { sessionsUsed: { decrement: 1 }, status: "ACTIVE" },
-        });
-      }
-
-      return NextResponse.json({ cancelled: true });
-    }
-
-    if (data.action === "reschedule") {
-      if (found.kind !== "appointment") {
-        return NextResponse.json({ error: "Nothing to reschedule." }, { status: 400 });
-      }
-      const appt = found.appointment;
-      if (["CANCELLED", "COMPLETED", "EXPIRED"].includes(appt.status)) {
-        return NextResponse.json({ error: "This booking cannot be rescheduled." }, { status: 400 });
-      }
-
-      // Take the new slot first; only release the old one once the new one is
-      // secured, so a failed reschedule never leaves the patient with nothing.
-      const replacement = await createHold({
-        serviceType: appt.serviceType,
-        doctorId: appt.doctorId,
-        departmentId: appt.departmentId,
-        dateKey: data.date,
-        startTime: data.startTime,
-        patientName: appt.patientName,
-        phone: appt.phone,
-        email: appt.email,
-        age: appt.age,
-        gender: appt.gender,
-        notes: appt.notes,
-        addressLine: appt.addressLine,
-        area: appt.area,
-        pincode: appt.pincode,
-        landmark: appt.landmark,
-        packageBookingId: appt.packageBookingId,
-        amountPaise: appt.amountPaise,
-      });
-
-      await db.appointment.update({
-        where: { id: replacement.id },
-        data: {
-          // Carry the paid status across — the patient is not paying twice for
-          // moving an appointment.
-          status: appt.status === "CONFIRMED" ? "CONFIRMED" : replacement.status,
-          holdExpiresAt: appt.status === "CONFIRMED" ? null : replacement.holdExpiresAt,
-        },
-      });
-
-      await releaseSlot(appt.id, "CANCELLED", {
-        cancelledBy: "patient",
-        reason: `Rescheduled to ${data.date} ${data.startTime} (${replacement.ref})`,
-      });
-
-      return NextResponse.json({ rescheduled: true, ref: replacement.ref });
-    }
-
     if (data.action === "schedule-session") {
       const packageBookingId =
         found.kind === "package" ? found.pkg.id : found.appointment.packageBookingId;

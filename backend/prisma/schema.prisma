@@ -98,7 +98,7 @@ model Department {
   icon      String? // lucide icon name
   shortDesc String
   longDesc  String? @db.Text
-  /// The three flagship specialities get the tabbed hero treatment.
+  /// The flagship specialities shown as the homepage box grid.
   isCore    Boolean @default(false)
   order     Int     @default(0)
   active    Boolean @default(true)

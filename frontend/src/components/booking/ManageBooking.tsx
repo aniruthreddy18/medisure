@@ -5,15 +5,15 @@ import Link from "next/link";
 import {
   Loader2,
   ShieldCheck,
-  CalendarDays,
+  Phone,
   CheckCircle2,
-  XCircle,
   CalendarPlus,
   AlertCircle,
 } from "lucide-react";
 import { SlotPicker } from "@/components/booking/SlotPicker";
 import { formatDateLabel, formatTimeLabel } from "@medisure/backend/time";
 import { site } from "@medisure/backend/site";
+import { formatPhone } from "@/lib/utils";
 
 type PackageInfo = {
   ref: string;
@@ -38,7 +38,7 @@ type Details = {
   package: PackageInfo | null;
 };
 
-type Mode = "idle" | "reschedule" | "next-session";
+type Mode = "idle" | "next-session";
 
 /**
  * Self-service booking management, gated behind an OTP sent to the number on
@@ -110,27 +110,22 @@ export function ManageBooking({ bookingRef }: { bookingRef: string }) {
     setDetails(d);
   }
 
-  async function act(action: "cancel" | "reschedule" | "schedule-session") {
+  async function act(action: "schedule-session") {
     if (!token) return;
     setBusy(true);
     setError(null);
     setNotice(null);
     try {
-      const payload: Record<string, unknown> = { action, ref: bookingRef, token };
-      if (action !== "cancel") {
-        if (!slot) throw new Error("Choose a time first.");
-        payload.date = slot.date;
-        payload.startTime = slot.startTime;
-      }
-      const json = await post("/api/manage", payload);
+      if (!slot) throw new Error("Choose a time first.");
+      const json = await post("/api/manage", {
+        action,
+        ref: bookingRef,
+        token,
+        date: slot.date,
+        startTime: slot.startTime,
+      });
 
-      setNotice(
-        action === "cancel"
-          ? "Your booking has been cancelled."
-          : action === "reschedule"
-            ? `Rescheduled. Your new reference is ${json.ref}.`
-            : `Session booked for ${formatDateLabel(json.date)} at ${formatTimeLabel(json.startTime)}.`,
-      );
+      setNotice(`Session booked for ${formatDateLabel(json.date)} at ${formatTimeLabel(json.startTime)}.`);
       setMode("idle");
       setSlot(null);
       await refresh(token);
@@ -217,7 +212,13 @@ export function ManageBooking({ bookingRef }: { bookingRef: string }) {
   const d = details!;
   const pkg = d.package;
   const sessionsLeft = pkg ? pkg.sessionsTotal - pkg.sessionsUsed : 0;
-  const cancellable = d.kind === "appointment" && !["CANCELLED", "COMPLETED", "EXPIRED"].includes(d.status);
+  // Whether rescheduling still makes sense for this booking. There is no
+  // self-service cancel or reschedule any more — without a login, the only
+  // identity check available is an OTP re-verification per visit, which
+  // isn't a safe enough basis for changing or cancelling a booking on our
+  // own system of record. Both go through reception instead, who can pull
+  // up the booking directly.
+  const reschedulable = d.kind === "appointment" && !["CANCELLED", "COMPLETED", "EXPIRED"].includes(d.status);
 
   return (
     <div className="space-y-6">
@@ -272,28 +273,28 @@ export function ManageBooking({ bookingRef }: { bookingRef: string }) {
           )}
         </dl>
 
-        {cancellable && (
-          <div className="mt-7 flex flex-wrap gap-3 border-t border-border pt-6">
-            <button
-              type="button"
-              onClick={() => {
-                setMode(mode === "reschedule" ? "idle" : "reschedule");
-                setSlot(null);
-              }}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-brand-700 px-5 font-semibold text-brand-800 hover:bg-brand-50"
-            >
-              <CalendarDays className="size-4" aria-hidden="true" />
-              Reschedule
-            </button>
-            <button
-              type="button"
-              onClick={() => act("cancel")}
-              disabled={busy}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emergency/40 px-5 font-semibold text-emergency hover:bg-emergency/5 disabled:opacity-50"
-            >
-              <XCircle className="size-4" aria-hidden="true" />
-              Cancel booking
-            </button>
+        {reschedulable && (
+          <div className="mt-7 flex items-start gap-4 rounded-xl border-2 border-accent-300 bg-accent-50 p-5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent-500 text-white">
+              <Phone className="size-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="font-display font-bold text-ink-900">
+                To reschedule or cancel, call reception
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-ink-700">
+                We handle changes to an existing booking over the phone, not
+                on the website — call and we&apos;ll sort out a new time or
+                cancel it for you.
+              </p>
+              <a
+                href={`tel:${site.phone.reception}`}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent-500 px-5 font-semibold text-white transition-colors hover:bg-accent-600"
+              >
+                <Phone className="size-4" aria-hidden="true" />
+                {formatPhone(site.phone.reception)}
+              </a>
+            </div>
           </div>
         )}
       </div>
@@ -340,23 +341,23 @@ export function ManageBooking({ bookingRef }: { bookingRef: string }) {
         </div>
       )}
 
-      {/* Slot picker for reschedule / next session */}
-      {mode !== "idle" && d.doctorId && (
+      {/* Slot picker for booking the next package session */}
+      {mode === "next-session" && d.doctorId && (
         <div className="rounded-2xl border border-border bg-white p-8">
           <h2 className="font-display text-lg font-bold text-brand-950">
-            {mode === "reschedule" ? "Choose a new time" : "Choose a time for your next session"}
+            Choose a time for your next session
           </h2>
           <div className="mt-5">
             <SlotPicker
               doctorId={d.doctorId}
-              serviceType={mode === "next-session" ? "HOME_PHYSIO" : (d.serviceType ?? "OP")}
+              serviceType="HOME_PHYSIO"
               value={slot}
               onChange={setSlot}
             />
           </div>
           <button
             type="button"
-            onClick={() => act(mode === "reschedule" ? "reschedule" : "schedule-session")}
+            onClick={() => act("schedule-session")}
             disabled={busy || !slot}
             className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-accent-500 px-6 font-semibold text-white hover:bg-accent-600 disabled:opacity-50"
           >

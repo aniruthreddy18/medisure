@@ -90,8 +90,33 @@ export default async function BookingSuccessPage({
             {appointment.ref}
           </p>
           <p className="mt-2 text-sm text-ink-600">
-            Keep this to reschedule or cancel later.
+            Keep this — you&apos;ll need it if you call to make any changes.
           </p>
+        </div>
+
+        {/* Highlighted on purpose: there is no self-service reschedule or
+            cancel on the site, so this is the one place patients are told
+            what to do instead, right when they have just booked. */}
+        <div className="mt-5 flex items-start gap-4 rounded-xl border-2 border-accent-300 bg-accent-50 p-5 print:hidden">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-accent-500 text-white">
+            <Phone className="size-5" aria-hidden="true" />
+          </span>
+          <div>
+            <p className="font-display font-bold text-ink-900">
+              To reschedule or cancel, call reception
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-ink-700">
+              Have your booking reference ready and we&apos;ll take care of it
+              over the phone.
+            </p>
+            <a
+              href={`tel:${site.phone.reception}`}
+              className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent-500 px-5 font-semibold text-white transition-colors hover:bg-accent-600"
+            >
+              <Phone className="size-4" aria-hidden="true" />
+              {formatPhone(site.phone.reception)}
+            </a>
+          </div>
         </div>
 
         <dl className="mt-7 space-y-4">

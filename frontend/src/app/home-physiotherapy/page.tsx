@@ -33,8 +33,6 @@ export default async function HomePhysiotherapyPage() {
     getFaqs("home-physio"),
   ]);
 
-  const single = packages.filter((p) => p.sessionCount === 1);
-  const packs = packages.filter((p) => p.sessionCount > 1 && !p.conditionTag);
   const programmes = packages.filter((p) => p.conditionTag);
 
   return (
@@ -81,28 +79,6 @@ export default async function HomePhysiotherapyPage() {
               );
             })}
           </ol>
-        </Container>
-      </section>
-
-      {/* Packages */}
-      <section className="bg-brand-50 py-14 lg:py-20" aria-labelledby="packages">
-        <Container>
-          <div className="max-w-2xl">
-            <h2 id="packages" className="font-display text-2xl font-bold text-brand-950 sm:text-3xl">
-              Session packages
-            </h2>
-            <p className="mt-3 text-ink-600">
-              Recovery takes a course of treatment, not a single visit. Packages
-              work out cheaper per session and keep you with the same
-              physiotherapist. Pay once, then book each session when it suits you.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[...single, ...packs].map((pkg) => (
-              <PackageCard key={pkg.id} pkg={pkg} />
-            ))}
-          </div>
         </Container>
       </section>
 

@@ -19,8 +19,8 @@ const columns = [
     links: [
       { label: "Book an Appointment", href: "/book" },
       { label: "Home Physiotherapy", href: "/home-physiotherapy" },
-      { label: "Free Second Opinion", href: "/second-opinion" },
       { label: "Insurance & TPA", href: "/insurance" },
+      { label: "Free Second Opinion", href: "/second-opinion" },
       { label: "Manage a Booking", href: "/manage" },
     ],
   },

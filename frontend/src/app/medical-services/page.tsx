@@ -11,7 +11,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { getAllDepartments, getPackages } from "@medisure/backend/queries";
+import { getAllDepartments } from "@medisure/backend/queries";
 import { site } from "@medisure/backend/site";
 
 export const revalidate = 300;
@@ -22,7 +22,24 @@ export const metadata: Metadata = {
     "Consultations, surgery, physiotherapy, home visits, diagnostics and emergency care — everything the hospital offers in one place.",
 };
 
-const services = [
+/**
+ * Each card is either a link somewhere useful (`href` + `cta`) or a plain
+ * status card (`available: true`, no click target at all). Home Physio,
+ * Diagnostics and Rehab were previously links, but Diagnostics pointed at
+ * `/specialities/diagnostics`, a department slug that doesn't exist — a dead
+ * link — and the client asked for the other two to stop redirecting as well,
+ * so all three became "Available" status cards instead. Surgery & Procedures
+ * keeps its info but drops the "Explore surgery" CTA per the same request,
+ * without a status badge since none was asked for.
+ */
+const services: {
+  icon: typeof Stethoscope;
+  title: string;
+  body: string;
+  href?: string;
+  cta?: string;
+  available?: boolean;
+}[] = [
   {
     icon: Stethoscope,
     title: "OP Consultations",
@@ -34,15 +51,12 @@ const services = [
     icon: HomeIcon,
     title: "Home Physiotherapy",
     body: "A physiotherapist treats you at home — single visits or session packages for longer recoveries.",
-    href: "/home-physiotherapy",
-    cta: "See packages",
+    available: true,
   },
   {
     icon: Activity,
     title: "Surgery & Procedures",
     body: "Laparoscopic and open surgery, joint replacement, arthroscopy and day-care procedures.",
-    href: "/specialities/general-surgery",
-    cta: "Explore surgery",
   },
   {
     icon: ClipboardCheck,
@@ -55,20 +69,18 @@ const services = [
     icon: ScanLine,
     title: "Diagnostics & Imaging",
     body: "X-ray, ultrasound and laboratory services on site, so results reach your doctor the same day.",
-    href: "/specialities/diagnostics",
-    cta: "About diagnostics",
+    available: true,
   },
   {
     icon: Syringe,
     title: "Rehabilitation",
     body: "Structured recovery programmes after surgery, stroke or injury, run with your treating doctor.",
-    href: "/specialities/physiotherapy",
-    cta: "About rehab",
+    available: true,
   },
 ];
 
 export default async function MedicalServicesPage() {
-  const [departments, packages] = await Promise.all([getAllDepartments(), getPackages()]);
+  const departments = await getAllDepartments();
 
   return (
     <>
@@ -92,19 +104,17 @@ export default async function MedicalServicesPage() {
         <ul className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
             const Icon = service.icon;
-            return (
-              <li key={service.title}>
-                <Link
-                  href={service.href}
-                  className="group flex h-full flex-col rounded-2xl border border-ink-200 bg-white p-7 transition-shadow hover:shadow-md"
-                >
-                  <span className="grid size-12 place-items-center rounded-xl bg-brand-50 text-brand-600">
-                    <Icon className="size-6" aria-hidden="true" />
-                  </span>
-                  <h2 className="mt-5 font-display text-xl font-bold text-ink-900">
-                    {service.title}
-                  </h2>
-                  <p className="mt-2 flex-1 leading-relaxed text-ink-600">{service.body}</p>
+            const body = (
+              <>
+                <span className="grid size-12 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                  <Icon className="size-6" aria-hidden="true" />
+                </span>
+                <h2 className="mt-5 font-display text-xl font-bold text-ink-900">
+                  {service.title}
+                </h2>
+                <p className="mt-2 flex-1 leading-relaxed text-ink-600">{service.body}</p>
+
+                {service.href && service.cta ? (
                   <span className="mt-5 inline-flex items-center gap-2 font-semibold text-brand-700">
                     {service.cta}
                     <ArrowRight
@@ -112,7 +122,31 @@ export default async function MedicalServicesPage() {
                       aria-hidden="true"
                     />
                   </span>
-                </Link>
+                ) : (
+                  service.available && (
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                      <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-500" />
+                      Available
+                    </span>
+                  )
+                )}
+              </>
+            );
+
+            return (
+              <li key={service.title}>
+                {service.href ? (
+                  <Link
+                    href={service.href}
+                    className="group flex h-full flex-col rounded-2xl border border-ink-200 bg-white p-7 transition-shadow hover:shadow-md"
+                  >
+                    {body}
+                  </Link>
+                ) : (
+                  <div className="flex h-full flex-col rounded-2xl border border-ink-200 bg-white p-7">
+                    {body}
+                  </div>
+                )}
               </li>
             );
           })}
@@ -159,42 +193,6 @@ export default async function MedicalServicesPage() {
             ))}
           </ul>
         </section>
-
-        {/* Home physio packages */}
-        {packages.length > 0 && (
-          <section aria-labelledby="hp-packages" className="mt-16">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <h2 id="hp-packages" className="font-display text-2xl font-bold text-ink-900 sm:text-3xl">
-                Home physiotherapy packages
-              </h2>
-              <Link
-                href="/home-physiotherapy"
-                className="inline-flex items-center gap-2 font-semibold text-brand-700 hover:underline"
-              >
-                See all
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </div>
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {packages.slice(0, 4).map((pkg) => (
-                <li key={pkg.id}>
-                  <Link
-                    href="/home-physiotherapy"
-                    className="block rounded-xl border border-ink-200 bg-white p-5 transition-colors hover:border-brand-400"
-                  >
-                    <span className="block font-medium text-ink-900">{pkg.name}</span>
-                    <span className="mt-2 block font-display text-xl font-bold text-brand-700">
-                      ₹{(pkg.pricePaise / 100).toLocaleString("en-IN")}
-                    </span>
-                    <span className="mt-0.5 block text-sm text-ink-500">
-                      {pkg.sessionCount} {pkg.sessionCount === 1 ? "session" : "sessions"}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
       </Container>
     </>
   );

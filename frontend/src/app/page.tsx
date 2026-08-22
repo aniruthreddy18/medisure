@@ -21,7 +21,7 @@ export const revalidate = 300;
 
 /**
  * Homepage section order, as specified by the client:
- *   hero → specialities → experience → reels → patient stories → insurance → FAQ
+ *   hero → specialities → insurance → experience → reels → patient stories → FAQ
  *
  * Achievements and the doctor panel deliberately do NOT appear here — both
  * live on their own pages, reached from the nav, so the homepage stays short.
@@ -49,13 +49,7 @@ export default async function HomePage() {
         }))}
       />
 
-      <ExperienceSection stats={stats} />
-
-      <ReelsSection />
-
-      <StoriesScroller testimonials={testimonials} />
-
-      {/* Insurance — sits directly under the patient stories */}
+      {/* Insurance — sits directly under core specialities */}
       {insurers.length > 0 && (
         <section className="bg-white py-16 lg:py-20" aria-labelledby="insurance">
           <Container>
@@ -97,6 +91,12 @@ export default async function HomePage() {
           </Container>
         </section>
       )}
+
+      <ExperienceSection stats={stats} />
+
+      <ReelsSection />
+
+      <StoriesScroller testimonials={testimonials} />
 
       {/* FAQ last */}
       <FaqAccordion faqs={faqs} />

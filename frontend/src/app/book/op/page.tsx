@@ -41,6 +41,7 @@ export default async function OpBookingPage({
             name: d.name,
             slug: d.slug,
             designation: d.designation,
+            qualifications: d.qualifications,
             experienceYears: d.experienceYears,
             opFeePaise: d.opFeePaise,
             departments: d.departments.map((x) => ({

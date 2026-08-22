@@ -17,6 +17,7 @@ type Doctor = {
   name: string;
   slug: string;
   designation: string;
+  qualifications: string;
   experienceYears: number | null;
   opFeePaise: number;
   departments: { department: { id: string; name: string; slug: string } }[];
@@ -289,14 +290,20 @@ export function OpBookingFlow({
                   }}
                   className="flex items-center justify-between gap-4 rounded-xl border border-border bg-white p-5 text-left transition-colors hover:border-brand-400 hover:bg-brand-50"
                 >
-                  <span>
+                  <span className="min-w-0">
                     <span className="block font-display font-semibold text-brand-900">{d.name}</span>
                     <span className="mt-0.5 block text-sm text-ink-600">{d.designation}</span>
                     {d.experienceYears !== null && (
-                      <span className="mt-1 block text-sm text-ink-500">
+                      <span className="mt-1 block text-sm font-semibold text-ink-800">
                         {d.experienceYears}+ years experience
                       </span>
                     )}
+                    <span
+                      className="mt-0.5 block truncate text-sm text-ink-500"
+                      title={d.qualifications}
+                    >
+                      {d.qualifications}
+                    </span>
                   </span>
                   <span className="shrink-0 text-right">
                     <span className="block font-semibold text-brand-900">

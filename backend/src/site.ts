@@ -31,6 +31,9 @@ export const site = {
     main: "+914012345678", // TODO: client
     booking: "+919000000000", // TODO: client
     emergency: "+914099999999", // TODO: client — shown in header at all times
+    // Front desk — the header's "Call" button, and also the number staff use
+    // to ring patients back for a second opinion request.
+    reception: "+917989554697",
   },
   email: {
     general: "info@medisure.example", // TODO: client

@@ -1,31 +1,44 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Play, ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
 /**
- * Instagram reels, scrolled horizontally. Tapping one opens that reel on
- * Instagram in a new tab.
+ * Instagram reels, scrolled horizontally, self-hosted so they can actually
+ * autoplay — Instagram's own embed widget always requires a click to start
+ * playback, so there is no way to get real autoplay from the Instagram URL
+ * alone. Each card plays its own muted, looping video; tapping still opens
+ * the original reel on Instagram in a new tab.
  *
- * ⚠️ TODO(client): replace INSTAGRAM_HANDLE and the REELS list with the
- * hospital's real account and reel URLs. Nothing here is fetched from
- * Instagram — embedding their API would need an app review and a token, so
- * each reel is a thumbnail we host plus a link out. That also keeps the page
- * fast and sets no third-party cookies on load.
- *
- * Thumbnails go in `public/media/reels/`. Until they exist each card falls
- * back to a branded panel, so the row still reads correctly.
+ * ⚠️ TODO(client): supply the .mp4 for each reel below (export from
+ * Instagram, no watermark) and drop it into `public/media/reels/` under the
+ * filename already referenced. A poster image is optional — without one the
+ * first frame doubles as the poster once the video loads. Until a video
+ * file exists, that card falls back to a static thumbnail (or a branded
+ * panel) with a play icon that just links out, so the row still reads
+ * correctly with videos missing.
  */
 const INSTAGRAM_HANDLE = "medisurehospital"; // TODO(client): confirm handle
 
-type Reel = { id: string; caption: string; url: string; thumbnail?: string };
+type Reel = {
+  id: string;
+  caption: string;
+  url: string;
+  /** Local path under /public, e.g. "/media/reels/r1.mp4". */
+  video?: string;
+  poster?: string;
+  thumbnail?: string;
+};
 
 const REELS: Reel[] = [
-  { id: "r1", caption: "Inside our physiotherapy gym", url: `https://www.instagram.com/${INSTAGRAM_HANDLE}/` },
-  { id: "r2", caption: "Knee replacement — what recovery looks like", url: `https://www.instagram.com/${INSTAGRAM_HANDLE}/` },
-  { id: "r3", caption: "A home physiotherapy visit, start to finish", url: `https://www.instagram.com/${INSTAGRAM_HANDLE}/` },
-  { id: "r4", caption: "Meet our orthopaedic team", url: `https://www.instagram.com/${INSTAGRAM_HANDLE}/` },
-  { id: "r5", caption: "Three exercises for everyday back pain", url: `https://www.instagram.com/${INSTAGRAM_HANDLE}/` },
-  { id: "r6", caption: "Free health camp at Kukatpally", url: `https://www.instagram.com/${INSTAGRAM_HANDLE}/` },
+  { id: "r1", caption: "", url: `https://www.instagram.com/reel/DcJEQTQggwg/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==`, video: "/media/reels/r1.mp4" },
+  { id: "r2", caption: "", url: `https://www.instagram.com/reel/DcLmdNcA4nZ/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==`, video: "/media/reels/r2.mp4" },
+  { id: "r3", caption: "", url: `https://www.instagram.com/reel/DcOMU0ySiuv/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==`, video: "/media/reels/r3.mp4" },
+  { id: "r4", caption: "", url: `https://www.instagram.com/reel/DcQvJy0Slpr/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==`, video: "/media/reels/r4.mp4" },
+  { id: "r5", caption: "", url: `https://www.instagram.com/reel/Db40yPbiYey/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==`, video: "/media/reels/r5.mp4" },
+  { id: "r6", caption: "", url: `https://www.instagram.com/reel/Db-wYZWSM5F/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==`, video: "/media/reels/r6.mp4" },
 ];
 
 /** Lucide v1 dropped brand marks, so the Instagram glyph is inline. */
@@ -48,6 +61,56 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Muted, looping, self-hosted video that only plays while its card is
+ * actually on screen. With 12 cards live at once (the marquee track renders
+ * the list twice), autoplaying every one regardless of visibility would keep
+ * a dozen decoders running constantly — this pauses whichever are scrolled
+ * out of the row. Falls back to the gradient/thumbnail placeholder if the
+ * file 404s, which happens until the client supplies the real .mp4s.
+ */
+function ReelVideo({ src, poster }: { src: string; poster?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.play().catch(() => {
+            /* Autoplay can be blocked before the user has interacted with
+               the page at all; the poster frame is shown either way. */
+          });
+        } else {
+          el.pause();
+        }
+      },
+      { rootMargin: "0px 200px", threshold: 0.25 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  if (failed) return null;
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      onError={() => setFailed(true)}
+      className="absolute inset-0 size-full object-cover"
+    />
+  );
+}
+
 export function ReelsSection() {
   if (REELS.length === 0) return null;
 
@@ -66,7 +129,7 @@ export function ReelsSection() {
           </div>
 
           <a
-            href={`https://www.instagram.com/${INSTAGRAM_HANDLE}/`}
+            href={`https://www.instagram.com/medisure_hospital?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 font-semibold text-brand-700 hover:underline"
@@ -104,7 +167,9 @@ export function ReelsSection() {
                 tabIndex={i >= REELS.length ? -1 : undefined}
               >
                 <div className="relative aspect-[9/16] overflow-hidden rounded-2xl bg-brand-900">
-                  {reel.thumbnail ? (
+                  {reel.video ? (
+                    <ReelVideo src={reel.video} poster={reel.poster ?? reel.thumbnail} />
+                  ) : reel.thumbnail ? (
                     <Image
                       src={reel.thumbnail}
                       alt=""
@@ -122,7 +187,11 @@ export function ReelsSection() {
                   <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
                   <span className="absolute left-3 top-3 grid size-9 place-items-center rounded-full bg-black/45 text-white backdrop-blur">
-                    <Play className="size-4 translate-x-0.5 fill-current" aria-hidden="true" />
+                    {reel.video ? (
+                      <InstagramIcon className="size-4" />
+                    ) : (
+                      <Play className="size-4 translate-x-0.5 fill-current" aria-hidden="true" />
+                    )}
                   </span>
 
                   <span className="absolute inset-x-3 bottom-3 text-sm font-medium leading-snug text-white">

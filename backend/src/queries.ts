@@ -80,10 +80,10 @@ export type DoctorFilters = {
   q?: string;
 };
 
-export function getDoctors(filters: DoctorFilters = {}) {
+export async function getDoctors(filters: DoctorFilters = {}) {
   const { department, gender, language, service, q } = filters;
 
-  return db.doctor.findMany({
+  const doctors = await db.doctor.findMany({
     where: {
       active: true,
       ...(department ? { departments: { some: { department: { slug: department } } } } : {}),
@@ -94,6 +94,18 @@ export function getDoctors(filters: DoctorFilters = {}) {
     },
     orderBy: [{ order: "asc" }, { experienceYears: "desc" }],
     include: { departments: { include: { department: true } } },
+  });
+
+  // Grouped by department, in the same order as the homepage speciality
+  // grid (department.order) — General Medicine, General Surgery,
+  // Orthopaedics, Physiotherapy, Gynaecology, Paediatrics, then the rest.
+  // Prisma can't sort a to-many relation by a field on the far side, so this
+  // sorts in JS instead; the `order`/`experienceYears` DB ordering above
+  // becomes the tiebreaker within each department.
+  return doctors.sort((a, b) => {
+    const deptOrder = (doc: (typeof doctors)[number]) =>
+      Math.min(...doc.departments.map((d) => d.department.order), Infinity);
+    return deptOrder(a) - deptOrder(b);
   });
 }
 

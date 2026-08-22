@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X, Search, Ambulance } from "lucide-react";
+import { Menu, X, Search, Ambulance, Phone } from "lucide-react";
 import { site } from "@medisure/backend/site";
 import { formatPhone, cn } from "@/lib/utils";
 import { Container } from "@/components/ui/Container";
@@ -59,7 +59,11 @@ export function Header() {
           : "border-b border-ink-200 bg-white shadow-sm",
       )}
     >
-      <Container className="flex h-20 items-center gap-5 lg:h-24">
+      {/* max-w-7xl, not the site's usual max-w-6xl: nav + search + the two
+          phone buttons no longer fit in the standard width now that there
+          are two phone buttons instead of one — this only widens the
+          header's own row, not the page content max-width used elsewhere. */}
+      <Container className="flex h-20 max-w-7xl items-center gap-5 lg:h-24">
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center gap-3">
           <span
@@ -85,74 +89,91 @@ export function Header() {
           </span>
         </Link>
 
-        {/* Nav */}
-        <nav aria-label="Main" className="ml-auto hidden xl:block">
-          <ul className="flex items-center gap-1">
-            {nav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="block whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-brand-50 hover:text-brand-700"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {/* Nav, search and the phone buttons cluster together as one group so
+            they sit flush right — a single ml-auto here, rather than one on
+            each child, keeps them from spreading out across the bar. */}
+        <div className="ml-auto flex items-center gap-3 xl:gap-4">
+          <nav aria-label="Main" className="hidden xl:block">
+            <ul className="flex items-center gap-1">
+              {nav.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="block whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        {/* Search */}
-        <form
-          onSubmit={submitSearch}
-          role="search"
-          className={cn("ml-auto hidden lg:block xl:ml-4", "w-52 xl:w-56")}
-        >
-          <label htmlFor="site-search" className="sr-only">
-            Search doctors and specialities
-          </label>
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-400"
-              aria-hidden="true"
-            />
-            <input
-              id="site-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search doctors…"
-              className={cn(
-                "h-11 w-full rounded-full border pl-9 pr-3 text-sm text-ink-900 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-500",
-                overHero
-                  ? "border-ink-200 bg-white/80 backdrop-blur focus:bg-white"
-                  : "border-ink-200 bg-ink-50 focus:bg-white",
-              )}
-            />
-          </div>
-        </form>
-
-        {/* Emergency */}
-        <a
-          href={`tel:${site.phone.emergency}`}
-          className="flex shrink-0 items-center gap-2.5 rounded-full bg-brand-600 px-3 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 lg:px-4"
-        >
-          <span
-            className="grid size-8 shrink-0 place-items-center rounded-full bg-white/20"
+          {/* Search — an icon button rather than an inline input. Nav, a full
+              search box and two phone buttons don't fit in the header at any
+              width: the box has almost no minimum content size, so flexbox
+              always squeezed it first, down to an unusable ~70px sliver,
+              however much room the row was given. A fixed-size icon has no
+              such problem and still reaches the same search (/doctors), plus
+              the mobile drawer keeps its own full-width input. */}
+          <Link
+            href="/doctors"
+            aria-label="Search doctors"
+            className="hidden size-11 shrink-0 place-items-center rounded-full transition-colors hover:bg-brand-50 lg:grid"
           >
-            <Ambulance className="size-4" aria-hidden="true" />
-          </span>
-          <span className="hidden text-left leading-tight lg:block">
-            <span className="block text-[10px] font-medium uppercase tracking-wider opacity-80">
-              Emergency
+            <Search className="size-5" aria-hidden="true" />
+          </Link>
+
+          {/* Call — reception, not the emergency line. Sits to the left of
+              Emergency as the secondary (outlined) action; Emergency stays
+              the filled, more urgent-looking button. */}
+          <a
+            href={`tel:${site.phone.reception}`}
+            className={cn(
+              "flex shrink-0 items-center gap-2.5 rounded-full border px-3 py-2 font-semibold shadow-sm transition-colors lg:px-4",
+              overHero
+                ? "border-ink-200 bg-white/80 text-ink-900 backdrop-blur hover:bg-white"
+                : "border-ink-200 bg-white text-ink-900 hover:border-brand-400 hover:bg-brand-50",
+            )}
+          >
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600">
+              <Phone className="size-4" aria-hidden="true" />
             </span>
-            <span className="block text-sm tabular-nums">
-              {formatPhone(site.phone.emergency)}
+            <span className="hidden text-left leading-tight lg:block">
+              <span className="block text-[10px] font-medium uppercase tracking-wider text-ink-500">
+                Call us
+              </span>
+              <span className="block text-sm tabular-nums">
+                {formatPhone(site.phone.reception)}
+              </span>
             </span>
-          </span>
-          <span className="sr-only lg:hidden">
-            Emergency: {formatPhone(site.phone.emergency)}
-          </span>
-        </a>
+            <span className="sr-only lg:hidden">
+              Call reception: {formatPhone(site.phone.reception)}
+            </span>
+          </a>
+
+          {/* Emergency */}
+          <a
+            href={`tel:${site.phone.emergency}`}
+            className="flex shrink-0 items-center gap-2.5 rounded-full bg-brand-600 px-3 py-2 font-semibold text-white shadow-sm transition-colors hover:bg-brand-700 lg:px-4"
+          >
+            <span
+              className="grid size-8 shrink-0 place-items-center rounded-full bg-white/20"
+            >
+              <Ambulance className="size-4" aria-hidden="true" />
+            </span>
+            <span className="hidden text-left leading-tight lg:block">
+              <span className="block text-[10px] font-medium uppercase tracking-wider opacity-80">
+                Emergency
+              </span>
+              <span className="block text-sm tabular-nums">
+                {formatPhone(site.phone.emergency)}
+              </span>
+            </span>
+            <span className="sr-only lg:hidden">
+              Emergency: {formatPhone(site.phone.emergency)}
+            </span>
+          </a>
+        </div>
 
         {/* Menu toggle */}
         <button

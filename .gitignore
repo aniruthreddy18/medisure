@@ -1,7 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+# Unanchored (no leading slash) so these also match nested workspaces
+# (frontend/, backend/) in this monorepo, not just the repo root.
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,14 +13,14 @@
 !.yarn/versions
 
 # testing
-/coverage
+coverage/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
+build/
 
 # misc
 .DS_Store
@@ -43,7 +45,7 @@ next-env.d.ts
 # local npm cache (sandbox workaround)
 .npm-cache/
 
-/src/generated/prisma
+**/src/generated/prisma
 
 # keep the template committed so the team knows which vars exist
 !.env.example
