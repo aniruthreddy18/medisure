@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
   // adding a separate tsc watch just to consume our own package.
   transpilePackages: ["@medisure/backend"],
 
+  // pdfkit loads its font metric files (.afm) from disk at runtime. Bundling
+  // rewrites those paths to a non-existent /ROOT/... prefix, so it has to stay
+  // external and resolve from real node_modules.
+  serverExternalPackages: ["pdfkit"],
+
   images: {
     // Uploaded media (doctor photos, achievements, gallery) is served from
     // Cloudinary in Phase 5; YouTube thumbnails back the video facade.

@@ -336,6 +336,9 @@ self.__SERVER_FILES_MANIFEST={
     "transpilePackages": [
       "@medisure/backend"
     ],
+    "serverExternalPackages": [
+      "pdfkit"
+    ],
     "repoRoot": "/Users/aniruthreddy/medisure",
     "distDirRoot": ".next"
   },

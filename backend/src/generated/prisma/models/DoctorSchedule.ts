@@ -31,12 +31,14 @@ export type DoctorScheduleAvgAggregateOutputType = {
   dayOfWeek: number | null
   slotMinutes: number | null
   travelBufferMinutes: number | null
+  capacityPerHour: number | null
 }
 
 export type DoctorScheduleSumAggregateOutputType = {
   dayOfWeek: number | null
   slotMinutes: number | null
   travelBufferMinutes: number | null
+  capacityPerHour: number | null
 }
 
 export type DoctorScheduleMinAggregateOutputType = {
@@ -48,6 +50,7 @@ export type DoctorScheduleMinAggregateOutputType = {
   endTime: string | null
   slotMinutes: number | null
   travelBufferMinutes: number | null
+  capacityPerHour: number | null
   location: string | null
   active: boolean | null
   createdAt: Date | null
@@ -63,6 +66,7 @@ export type DoctorScheduleMaxAggregateOutputType = {
   endTime: string | null
   slotMinutes: number | null
   travelBufferMinutes: number | null
+  capacityPerHour: number | null
   location: string | null
   active: boolean | null
   createdAt: Date | null
@@ -78,6 +82,7 @@ export type DoctorScheduleCountAggregateOutputType = {
   endTime: number
   slotMinutes: number
   travelBufferMinutes: number
+  capacityPerHour: number
   location: number
   active: number
   createdAt: number
@@ -90,12 +95,14 @@ export type DoctorScheduleAvgAggregateInputType = {
   dayOfWeek?: true
   slotMinutes?: true
   travelBufferMinutes?: true
+  capacityPerHour?: true
 }
 
 export type DoctorScheduleSumAggregateInputType = {
   dayOfWeek?: true
   slotMinutes?: true
   travelBufferMinutes?: true
+  capacityPerHour?: true
 }
 
 export type DoctorScheduleMinAggregateInputType = {
@@ -107,6 +114,7 @@ export type DoctorScheduleMinAggregateInputType = {
   endTime?: true
   slotMinutes?: true
   travelBufferMinutes?: true
+  capacityPerHour?: true
   location?: true
   active?: true
   createdAt?: true
@@ -122,6 +130,7 @@ export type DoctorScheduleMaxAggregateInputType = {
   endTime?: true
   slotMinutes?: true
   travelBufferMinutes?: true
+  capacityPerHour?: true
   location?: true
   active?: true
   createdAt?: true
@@ -137,6 +146,7 @@ export type DoctorScheduleCountAggregateInputType = {
   endTime?: true
   slotMinutes?: true
   travelBufferMinutes?: true
+  capacityPerHour?: true
   location?: true
   active?: true
   createdAt?: true
@@ -239,6 +249,7 @@ export type DoctorScheduleGroupByOutputType = {
   endTime: string
   slotMinutes: number
   travelBufferMinutes: number
+  capacityPerHour: number
   location: string | null
   active: boolean
   createdAt: Date
@@ -277,6 +288,7 @@ export type DoctorScheduleWhereInput = {
   endTime?: Prisma.StringFilter<"DoctorSchedule"> | string
   slotMinutes?: Prisma.IntFilter<"DoctorSchedule"> | number
   travelBufferMinutes?: Prisma.IntFilter<"DoctorSchedule"> | number
+  capacityPerHour?: Prisma.IntFilter<"DoctorSchedule"> | number
   location?: Prisma.StringNullableFilter<"DoctorSchedule"> | string | null
   active?: Prisma.BoolFilter<"DoctorSchedule"> | boolean
   createdAt?: Prisma.DateTimeFilter<"DoctorSchedule"> | Date | string
@@ -293,6 +305,7 @@ export type DoctorScheduleOrderByWithRelationInput = {
   endTime?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -312,6 +325,7 @@ export type DoctorScheduleWhereUniqueInput = Prisma.AtLeast<{
   endTime?: Prisma.StringFilter<"DoctorSchedule"> | string
   slotMinutes?: Prisma.IntFilter<"DoctorSchedule"> | number
   travelBufferMinutes?: Prisma.IntFilter<"DoctorSchedule"> | number
+  capacityPerHour?: Prisma.IntFilter<"DoctorSchedule"> | number
   location?: Prisma.StringNullableFilter<"DoctorSchedule"> | string | null
   active?: Prisma.BoolFilter<"DoctorSchedule"> | boolean
   createdAt?: Prisma.DateTimeFilter<"DoctorSchedule"> | Date | string
@@ -328,6 +342,7 @@ export type DoctorScheduleOrderByWithAggregationInput = {
   endTime?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -351,6 +366,7 @@ export type DoctorScheduleScalarWhereWithAggregatesInput = {
   endTime?: Prisma.StringWithAggregatesFilter<"DoctorSchedule"> | string
   slotMinutes?: Prisma.IntWithAggregatesFilter<"DoctorSchedule"> | number
   travelBufferMinutes?: Prisma.IntWithAggregatesFilter<"DoctorSchedule"> | number
+  capacityPerHour?: Prisma.IntWithAggregatesFilter<"DoctorSchedule"> | number
   location?: Prisma.StringNullableWithAggregatesFilter<"DoctorSchedule"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"DoctorSchedule"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DoctorSchedule"> | Date | string
@@ -365,6 +381,7 @@ export type DoctorScheduleCreateInput = {
   endTime: string
   slotMinutes?: number
   travelBufferMinutes?: number
+  capacityPerHour?: number
   location?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -381,6 +398,7 @@ export type DoctorScheduleUncheckedCreateInput = {
   endTime: string
   slotMinutes?: number
   travelBufferMinutes?: number
+  capacityPerHour?: number
   location?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -395,6 +413,7 @@ export type DoctorScheduleUpdateInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -411,6 +430,7 @@ export type DoctorScheduleUncheckedUpdateInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -426,6 +446,7 @@ export type DoctorScheduleCreateManyInput = {
   endTime: string
   slotMinutes?: number
   travelBufferMinutes?: number
+  capacityPerHour?: number
   location?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -440,6 +461,7 @@ export type DoctorScheduleUpdateManyMutationInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -455,6 +477,7 @@ export type DoctorScheduleUncheckedUpdateManyInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -480,6 +503,7 @@ export type DoctorScheduleCountOrderByAggregateInput = {
   endTime?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
   location?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -490,6 +514,7 @@ export type DoctorScheduleAvgOrderByAggregateInput = {
   dayOfWeek?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
 }
 
 export type DoctorScheduleMaxOrderByAggregateInput = {
@@ -501,6 +526,7 @@ export type DoctorScheduleMaxOrderByAggregateInput = {
   endTime?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
   location?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -516,6 +542,7 @@ export type DoctorScheduleMinOrderByAggregateInput = {
   endTime?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
   location?: Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -526,6 +553,7 @@ export type DoctorScheduleSumOrderByAggregateInput = {
   dayOfWeek?: Prisma.SortOrder
   slotMinutes?: Prisma.SortOrder
   travelBufferMinutes?: Prisma.SortOrder
+  capacityPerHour?: Prisma.SortOrder
 }
 
 export type DoctorScheduleCreateNestedManyWithoutDoctorInput = {
@@ -582,6 +610,7 @@ export type DoctorScheduleCreateWithoutDoctorInput = {
   endTime: string
   slotMinutes?: number
   travelBufferMinutes?: number
+  capacityPerHour?: number
   location?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -596,6 +625,7 @@ export type DoctorScheduleUncheckedCreateWithoutDoctorInput = {
   endTime: string
   slotMinutes?: number
   travelBufferMinutes?: number
+  capacityPerHour?: number
   location?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -640,6 +670,7 @@ export type DoctorScheduleScalarWhereInput = {
   endTime?: Prisma.StringFilter<"DoctorSchedule"> | string
   slotMinutes?: Prisma.IntFilter<"DoctorSchedule"> | number
   travelBufferMinutes?: Prisma.IntFilter<"DoctorSchedule"> | number
+  capacityPerHour?: Prisma.IntFilter<"DoctorSchedule"> | number
   location?: Prisma.StringNullableFilter<"DoctorSchedule"> | string | null
   active?: Prisma.BoolFilter<"DoctorSchedule"> | boolean
   createdAt?: Prisma.DateTimeFilter<"DoctorSchedule"> | Date | string
@@ -654,6 +685,7 @@ export type DoctorScheduleCreateManyDoctorInput = {
   endTime: string
   slotMinutes?: number
   travelBufferMinutes?: number
+  capacityPerHour?: number
   location?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -668,6 +700,7 @@ export type DoctorScheduleUpdateWithoutDoctorInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -682,6 +715,7 @@ export type DoctorScheduleUncheckedUpdateWithoutDoctorInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -696,6 +730,7 @@ export type DoctorScheduleUncheckedUpdateManyWithoutDoctorInput = {
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
   slotMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   travelBufferMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  capacityPerHour?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -713,6 +748,7 @@ export type DoctorScheduleSelect<ExtArgs extends runtime.Types.Extensions.Intern
   endTime?: boolean
   slotMinutes?: boolean
   travelBufferMinutes?: boolean
+  capacityPerHour?: boolean
   location?: boolean
   active?: boolean
   createdAt?: boolean
@@ -729,6 +765,7 @@ export type DoctorScheduleSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   endTime?: boolean
   slotMinutes?: boolean
   travelBufferMinutes?: boolean
+  capacityPerHour?: boolean
   location?: boolean
   active?: boolean
   createdAt?: boolean
@@ -745,6 +782,7 @@ export type DoctorScheduleSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   endTime?: boolean
   slotMinutes?: boolean
   travelBufferMinutes?: boolean
+  capacityPerHour?: boolean
   location?: boolean
   active?: boolean
   createdAt?: boolean
@@ -761,13 +799,14 @@ export type DoctorScheduleSelectScalar = {
   endTime?: boolean
   slotMinutes?: boolean
   travelBufferMinutes?: boolean
+  capacityPerHour?: boolean
   location?: boolean
   active?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DoctorScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "doctorId" | "serviceType" | "dayOfWeek" | "startTime" | "endTime" | "slotMinutes" | "travelBufferMinutes" | "location" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["doctorSchedule"]>
+export type DoctorScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "doctorId" | "serviceType" | "dayOfWeek" | "startTime" | "endTime" | "slotMinutes" | "travelBufferMinutes" | "capacityPerHour" | "location" | "active" | "createdAt" | "updatedAt", ExtArgs["result"]["doctorSchedule"]>
 export type DoctorScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   doctor?: boolean | Prisma.DoctorDefaultArgs<ExtArgs>
 }
@@ -801,6 +840,14 @@ export type $DoctorSchedulePayload<ExtArgs extends runtime.Types.Extensions.Inte
      * Home visits need travel time between patients; added after each slot.
      */
     travelBufferMinutes: number
+    /**
+     * How many patients may book the same window.
+     * 
+     * OPD runs as a token queue: an hour-long window holds 10 patients who are
+     * seen in turn, which is how the hospital actually works. Home physiotherapy
+     * stays at 1 — a physiotherapist can only be in one house at a time.
+     */
+    capacityPerHour: number
     location: string | null
     active: boolean
     createdAt: Date
@@ -1237,6 +1284,7 @@ export interface DoctorScheduleFieldRefs {
   readonly endTime: Prisma.FieldRef<"DoctorSchedule", 'String'>
   readonly slotMinutes: Prisma.FieldRef<"DoctorSchedule", 'Int'>
   readonly travelBufferMinutes: Prisma.FieldRef<"DoctorSchedule", 'Int'>
+  readonly capacityPerHour: Prisma.FieldRef<"DoctorSchedule", 'Int'>
   readonly location: Prisma.FieldRef<"DoctorSchedule", 'String'>
   readonly active: Prisma.FieldRef<"DoctorSchedule", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"DoctorSchedule", 'DateTime'>

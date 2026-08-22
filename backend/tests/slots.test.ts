@@ -50,17 +50,21 @@ beforeAll(async () => {
 
   await db.doctorSchedule.deleteMany({ where: { doctorId } });
 
-  // OP: every weekday 09:00–10:00 in 15-minute slots → 4 slots.
+  // OPD: 09:00–12:00 as three one-hour windows, 10 patients each.
   for (let day = 0; day <= 6; day++) {
     await db.doctorSchedule.create({
-      data: { doctorId, serviceType: "OP", dayOfWeek: day, startTime: "09:00", endTime: "10:00", slotMinutes: 15 },
+      data: {
+        doctorId, serviceType: "OP", dayOfWeek: day,
+        startTime: "09:00", endTime: "12:00", slotMinutes: 60, capacityPerHour: 10,
+      },
     });
-    // Home physio: 10:00–13:00, 60-minute sessions + 30-minute travel buffer
-    // → starts at 10:00, 11:30 (13:00 would end past the window) → 2 slots.
+    // Home physio: 14:00–17:00, 60-minute visits + 30 minutes travel, one
+    // patient at a time → starts at 14:00 and 15:30.
     await db.doctorSchedule.create({
       data: {
         doctorId, serviceType: "HOME_PHYSIO", dayOfWeek: day,
-        startTime: "10:00", endTime: "13:00", slotMinutes: 60, travelBufferMinutes: 30,
+        startTime: "14:00", endTime: "17:00", slotMinutes: 60,
+        travelBufferMinutes: 30, capacityPerHour: 1,
       },
     });
   }
@@ -75,17 +79,26 @@ afterAll(async () => {
 });
 
 describe("slot generation", () => {
-  it("expands a schedule window into fixed-length slots", async () => {
+  it("splits working hours into one-hour windows", async () => {
     const slots = await getSlots(doctorId, futureDateKey(), "OP");
-    expect(slots.map((s) => s.startTime)).toEqual(["09:00", "09:15", "09:30", "09:45"]);
-    expect(slots[0].endTime).toBe("09:15");
+    expect(slots.map((s) => s.startTime)).toEqual(["09:00", "10:00", "11:00"]);
+    expect(slots[0].endTime).toBe("10:00");
   });
 
-  it("adds travel buffer between home visits", async () => {
+  it("reports 10 places per OPD window", async () => {
+    const slots = await getSlots(doctorId, futureDateKey(), "OP");
+    expect(slots[0].capacity).toBe(10);
+    expect(slots[0].booked).toBe(0);
+    expect(slots[0].remaining).toBe(10);
+  });
+
+  it("adds travel buffer between home visits and keeps them one-to-one", async () => {
     const slots = await getSlots(doctorId, futureDateKey(), "HOME_PHYSIO");
     // 60-min session + 30-min travel = next start 90 minutes later
-    expect(slots.map((s) => s.startTime)).toEqual(["10:00", "11:30"]);
-    expect(slots[0].endTime).toBe("11:00");
+    expect(slots.map((s) => s.startTime)).toEqual(["14:00", "15:30"]);
+    expect(slots[0].endTime).toBe("15:00");
+    // A physiotherapist can only be in one house at a time.
+    expect(slots[0].capacity).toBe(1);
   });
 
   it("returns nothing on a full-day leave", async () => {
@@ -105,12 +118,12 @@ describe("slot generation", () => {
     await db.scheduleException.create({
       data: {
         doctorId, date: fromDateKey(dateKey), isFullDayOff: false,
-        startTime: "09:00", endTime: "09:30", reason: "Theatre",
+        startTime: "09:00", endTime: "10:00", reason: "Theatre",
       },
     });
 
     const slots = await getSlots(doctorId, dateKey, "OP");
-    expect(slots.map((s) => s.startTime)).toEqual(["09:30", "09:45"]);
+    expect(slots.map((s) => s.startTime)).toEqual(["10:00", "11:00"]);
 
     await db.scheduleException.deleteMany({ where: { doctorId, date: fromDateKey(dateKey) } });
   });
@@ -126,40 +139,95 @@ describe("slot generation", () => {
   });
 
   it("does not generate slots for a day with no schedule", async () => {
-    const otherDoctor = await db.doctor.findFirst({ where: { slug: "dr-suresh-reddy" } });
+    // Any doctor who does not do home visits: asking for HOME_PHYSIO slots
+    // must return nothing rather than falling back to their OP schedule.
+    // Looked up by capability rather than by name, so the test survives the
+    // hospital's doctor list changing.
+    const otherDoctor = await db.doctor.findFirst({
+      where: { offersHomePhysio: false, active: true, schedules: { some: { serviceType: "OP" } } },
+    });
+    expect(otherDoctor).not.toBeNull();
+
     const slots = await getSlots(otherDoctor!.id, futureDateKey(), "HOME_PHYSIO");
-    expect(slots).toHaveLength(0); // this surgeon does not do home visits
+    expect(slots).toHaveLength(0);
   });
 });
 
-describe("booking and slot release", () => {
-  it("removes a slot once it is held", async () => {
+describe("booking, tokens and capacity", () => {
+  it("assigns queue tokens in order", async () => {
     const dateKey = futureDateKey(13);
-    await createHold({
+    const first = await createHold({
       serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:00",
-      patientName: "Test Patient", phone: "+919000000001", amountPaise: 50000,
+      patientName: "Patient One", phone: "+919000000001", amountPaise: 50000,
+    });
+    const second = await createHold({
+      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:00",
+      patientName: "Patient Two", phone: "+919000000002", amountPaise: 50000,
     });
 
-    const slots = await getSlots(doctorId, dateKey, "OP");
-    expect(slots.map((s) => s.startTime)).not.toContain("09:00");
-    expect(slots).toHaveLength(3);
+    expect(first.tokenNumber).toBe(1);
+    expect(second.tokenNumber).toBe(2);
+
+    // Both are in the same window — this is a queue, not exclusive slots.
+    expect(first.startTime).toBe(second.startTime);
 
     await cleanupAppointments();
   });
 
-  it("frees the slot again when the booking is cancelled", async () => {
+  it("counts bookings against the window without closing it", async () => {
     const dateKey = futureDateKey(14);
+    for (let i = 0; i < 3; i++) {
+      await createHold({
+        serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:00",
+        patientName: `Patient ${i}`, phone: `+91900000010${i}`, amountPaise: 50000,
+      });
+    }
+
+    const slots = await getSlots(doctorId, dateKey, "OP");
+    const window = slots.find((s) => s.startTime === "09:00")!;
+    expect(window.booked).toBe(3);
+    expect(window.remaining).toBe(7);
+    expect(window.available).toBe(true);
+
+    await cleanupAppointments();
+  });
+
+  it("closes the window once all 10 places are taken", async () => {
+    const dateKey = futureDateKey(15);
+    for (let i = 0; i < 10; i++) {
+      await createHold({
+        serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:00",
+        patientName: `Patient ${i}`, phone: `+91900000020${i}`, amountPaise: 50000,
+      });
+    }
+
+    const slots = await getSlots(doctorId, dateKey, "OP");
+    expect(slots.map((s) => s.startTime)).not.toContain("09:00");
+
+    // The eleventh patient is refused rather than over-filling the queue.
+    await expect(
+      createHold({
+        serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:00",
+        patientName: "Eleventh", phone: "+919000000299", amountPaise: 50000,
+      }),
+    ).rejects.toBeInstanceOf(SlotUnavailableError);
+
+    await cleanupAppointments();
+  });
+
+  it("frees a token when a booking is cancelled", async () => {
+    const dateKey = futureDateKey(16);
     const appt = await createHold({
-      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:15",
-      patientName: "Test Patient", phone: "+919000000002", amountPaise: 50000,
+      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "10:00",
+      patientName: "Canceller", phone: "+919000000301", amountPaise: 50000,
     });
 
     await releaseSlot(appt.id, "CANCELLED", { cancelledBy: "patient" });
 
     const slots = await getSlots(doctorId, dateKey, "OP");
-    expect(slots.map((s) => s.startTime)).toContain("09:15");
+    expect(slots.find((s) => s.startTime === "10:00")!.remaining).toBe(10);
 
-    // The row survives for reporting even though the slot is free.
+    // The row survives for reporting even though the place is free.
     const stored = await db.appointment.findUnique({ where: { id: appt.id } });
     expect(stored?.status).toBe("CANCELLED");
     expect(stored?.slotLock).toBeNull();
@@ -167,31 +235,13 @@ describe("booking and slot release", () => {
     await cleanupAppointments();
   });
 
-  it("lets the same slot be rebooked after a cancellation", async () => {
-    const dateKey = futureDateKey(15);
-    const first = await createHold({
-      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:30",
-      patientName: "First", phone: "+919000000003", amountPaise: 50000,
-    });
-    await releaseSlot(first.id, "CANCELLED");
-
-    const second = await createHold({
-      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:30",
-      patientName: "Second", phone: "+919000000004", amountPaise: 50000,
-    });
-    expect(second.id).not.toBe(first.id);
-
-    await cleanupAppointments();
-  });
-
-  it("expires abandoned holds and returns the slot to the pool", async () => {
-    const dateKey = futureDateKey(16);
+  it("expires abandoned holds and returns the place to the queue", async () => {
+    const dateKey = futureDateKey(17);
     const appt = await createHold({
-      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:45",
-      patientName: "Abandoner", phone: "+919000000005", amountPaise: 50000,
+      serviceType: "OP", doctorId, departmentId, dateKey, startTime: "11:00",
+      patientName: "Abandoner", phone: "+919000000401", amountPaise: 50000,
     });
 
-    // Simulate the hold window elapsing.
     await db.appointment.update({
       where: { id: appt.id },
       data: { holdExpiresAt: new Date(Date.now() - 60_000) },
@@ -201,20 +251,39 @@ describe("booking and slot release", () => {
     expect(freed).toBeGreaterThanOrEqual(1);
 
     const slots = await getSlots(doctorId, dateKey, "OP");
-    expect(slots.map((s) => s.startTime)).toContain("09:45");
+    expect(slots.find((s) => s.startTime === "11:00")!.remaining).toBe(10);
+
+    await cleanupAppointments();
+  });
+
+  it("allows only one patient per home-physio visit", async () => {
+    const dateKey = futureDateKey(18);
+    await createHold({
+      serviceType: "HOME_PHYSIO", doctorId, dateKey, startTime: "14:00",
+      patientName: "Home One", phone: "+919000000501", amountPaise: 89900,
+      addressLine: "1 Test Road", pincode: "500001",
+    });
+
+    await expect(
+      createHold({
+        serviceType: "HOME_PHYSIO", doctorId, dateKey, startTime: "14:00",
+        patientName: "Home Two", phone: "+919000000502", amountPaise: 89900,
+        addressLine: "2 Test Road", pincode: "500001",
+      }),
+    ).rejects.toBeInstanceOf(SlotUnavailableError);
 
     await cleanupAppointments();
   });
 });
 
 describe("concurrency", () => {
-  it("allows exactly one booking when 20 requests race for the same slot", async () => {
-    const dateKey = futureDateKey(17);
+  it("admits exactly 10 when 20 patients race for the same window", async () => {
+    const dateKey = futureDateKey(19);
 
     const attempts = Array.from({ length: 20 }, (_, i) =>
       createHold({
         serviceType: "OP", doctorId, departmentId, dateKey, startTime: "09:00",
-        patientName: `Racer ${i}`, phone: `+9190000001${String(i).padStart(2, "0")}`,
+        patientName: `Racer ${i}`, phone: `+9190000006${String(i).padStart(2, "0")}`,
         amountPaise: 50000,
       }),
     );
@@ -223,19 +292,21 @@ describe("concurrency", () => {
     const won = results.filter((r) => r.status === "fulfilled");
     const lost = results.filter((r) => r.status === "rejected");
 
-    expect(won).toHaveLength(1);
-    expect(lost).toHaveLength(19);
+    expect(won).toHaveLength(10);
+    expect(lost).toHaveLength(10);
 
-    // Every loser must get the friendly domain error, not a raw DB error.
+    // Every loser gets the friendly domain error, never a raw database error.
     for (const l of lost) {
       expect((l as PromiseRejectedResult).reason).toBeInstanceOf(SlotUnavailableError);
     }
 
-    // And the database must hold exactly one row for that slot.
+    // Tokens 1..10, each issued exactly once — no duplicates under the race.
     const stored = await db.appointment.findMany({
       where: { doctorId, date: fromDateKey(dateKey), startTime: "09:00" },
+      select: { tokenNumber: true },
     });
-    expect(stored).toHaveLength(1);
+    const tokens = stored.map((s) => s.tokenNumber).sort((a, b) => a! - b!);
+    expect(tokens).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
     await cleanupAppointments();
   });

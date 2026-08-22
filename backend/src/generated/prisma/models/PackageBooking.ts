@@ -858,10 +858,6 @@ export type PackageBookingUncheckedUpdateManyWithoutPackageNestedInput = {
   deleteMany?: Prisma.PackageBookingScalarWhereInput | Prisma.PackageBookingScalarWhereInput[]
 }
 
-export type NullableEnumGenderFieldUpdateOperationsInput = {
-  set?: $Enums.Gender | null
-}
-
 export type EnumPackageStatusFieldUpdateOperationsInput = {
   set?: $Enums.PackageStatus
 }

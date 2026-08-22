@@ -32,26 +32,41 @@ export default async function AboutPage() {
 
       <Container className="py-14 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
-          <div className="space-y-6 text-lg leading-relaxed text-ink-700">
-            {/* TODO(client): replace with the hospital's own story, written by them. */}
-            <h2 className="font-display text-2xl font-bold text-brand-950">Who we are</h2>
+          <div className="space-y-5 text-lg leading-relaxed text-ink-700">
+            {/* Content supplied by the hospital in writing. Kept close to their
+                own wording — no added superlatives or outcome claims. */}
+            <h2 className="font-display text-2xl font-bold text-ink-900">
+              About MediSure Hospital
+            </h2>
             <p>
-              We are a multi-speciality hospital built around three connected
-              strengths: orthopaedics, general surgery, and the physiotherapy
-              that turns a successful operation into an actual recovery.
+              Our hospital is a premier multi-speciality healthcare centre,
+              dedicated to providing transparent, ethical, structured and
+              patient-oriented care under the guidance of advanced and
+              experienced medical expertise.
             </p>
             <p>
-              Most hospitals treat rehabilitation as an afterthought. Here the
-              surgeon who operates and the physiotherapist who gets you walking
-              again plan your recovery together, from the first consultation.
-              For patients who cannot travel — after major surgery, after a
-              stroke, or simply because of age — our physiotherapists continue
-              that treatment at home.
+              Located in the heart of Kukatpally, MediSure provides comprehensive
+              and compassionate medical and surgical care to patients belonging
+              to all age groups.
             </p>
-            <p className="rounded-xl border border-dashed border-border bg-ink-50 p-5 text-base text-ink-600">
-              This section is placeholder copy. The hospital&apos;s own history,
-              founder&apos;s note, leadership profiles and infrastructure details
-              should replace it before launch.
+            <p>
+              The hospital is strengthened by well-certified and experienced
+              teams of specialists, along with experienced nursing and trained
+              medical staff, to provide patient safety and comfort throughout the
+              course of treatment.
+            </p>
+            <p>
+              Apart from regular modes of payment, seamless insurance support is
+              provided under one roof.
+            </p>
+            <p>
+              We are committed to maintaining hospital safety and the quality of
+              care given to our patients, and we dedicate our services to helping
+              them achieve better healthcare outcomes.
+            </p>
+
+            <p className="border-l-4 border-brand-600 pl-5 font-display text-2xl font-bold text-brand-700">
+              &ldquo;Your health is our priority&rdquo;
             </p>
           </div>
 

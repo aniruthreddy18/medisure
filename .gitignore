@@ -47,3 +47,7 @@ next-env.d.ts
 
 # keep the template committed so the team knows which vars exist
 !.env.example
+
+# Google service-account key — a secret, never commit
+google-credentials.json
+*-credentials.json

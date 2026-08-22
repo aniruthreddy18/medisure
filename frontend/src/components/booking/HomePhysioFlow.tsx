@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, ArrowLeft, AlertCircle, HomeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SlotPicker } from "@/components/booking/SlotPicker";
+import { useRazorpayCheckout } from "@/components/booking/useRazorpayCheckout";
 import { OtpStep } from "@/components/booking/OtpStep";
 import { formatDateLabel, formatTimeLabel } from "@medisure/backend/time";
 
@@ -13,7 +14,7 @@ type Physio = {
   name: string;
   slug: string;
   designation: string;
-  experienceYears: number;
+  experienceYears: number | null;
   languages: string[];
   homeVisitFeePaise: number | null;
 };
@@ -51,6 +52,7 @@ export function HomePhysioFlow({
   initialDoctor?: string;
 }) {
   const router = useRouter();
+  const openCheckout = useRazorpayCheckout();
 
   const prePkg = packages.find((p) => p.slug === initialPackage) ?? null;
   const prePhysio = physios.find((p) => p.slug === initialDoctor) ?? null;
@@ -130,6 +132,42 @@ export function HomePhysioFlow({
         return;
       }
 
+      // Nothing to pay (a session inside an already-paid package).
+      if (!json.requiresPayment || !json.payment) {
+        router.push(`/book/success/${json.ref}`);
+        return;
+      }
+
+      const outcome = await openCheckout({
+        order: json.payment,
+        patientName: form.patientName,
+        phone: form.phone,
+        email: form.email || null,
+        description: "Home physiotherapy",
+      });
+
+      if (outcome.status === "failed") {
+        setError(outcome.message);
+        return;
+      }
+      if (outcome.status === "pending" && outcome.reason === "stub") {
+        setError(
+          "No payment gateway is connected yet, so there is nothing to redirect to. " +
+            "Add your Razorpay keys to .env and restart. The booking is held but unpaid.",
+        );
+        return;
+      }
+      if (outcome.status === "dismissed") {
+        // The place is still held for a few minutes, so let them retry rather
+        // than losing it.
+        setError(
+          "Payment was not completed. Your place is held for a few more minutes — try again.",
+        );
+        return;
+      }
+
+      // Paid, or pending while the gateway settles. Either way the
+      // confirmation page reads the real status from the database.
       router.push(`/book/success/${json.ref}`);
     } catch {
       setError("We could not reach the server. Please check your connection and try again.");
@@ -331,7 +369,8 @@ export function HomePhysioFlow({
                     <span className="block font-display font-semibold text-brand-900">{p.name}</span>
                     <span className="mt-0.5 block text-sm text-ink-600">{p.designation}</span>
                     <span className="mt-1 block text-sm text-ink-500">
-                      {p.experienceYears}+ years · speaks {p.languages.slice(0, 3).join(", ")}
+                      {p.experienceYears !== null && `${p.experienceYears}+ years · `}
+                      speaks {p.languages.slice(0, 3).join(", ")}
                     </span>
                   </span>
                 </button>

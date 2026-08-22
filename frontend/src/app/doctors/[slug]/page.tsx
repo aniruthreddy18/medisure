@@ -26,7 +26,7 @@ export async function generateMetadata({
 
   return {
     title: `${doctor.name} — ${doctor.designation}`,
-    description: `${doctor.name}, ${doctor.qualifications}. ${doctor.experienceYears}+ years of experience at ${site.name}. Book an appointment online.`,
+    description: `${doctor.name}, ${doctor.qualifications}, at ${site.name}. Book an appointment online.`,
   };
 }
 
@@ -98,10 +98,12 @@ export default async function DoctorProfilePage({
               <p className="mt-1 text-ink-600">{doctor.qualifications}</p>
 
               <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-700">
-                <li className="inline-flex items-center gap-2">
-                  <BadgeCheck className="size-4 text-brand-600" aria-hidden="true" />
-                  {doctor.experienceYears}+ years experience
-                </li>
+                {doctor.experienceYears !== null && (
+                  <li className="inline-flex items-center gap-2">
+                    <BadgeCheck className="size-4 text-brand-600" aria-hidden="true" />
+                    {doctor.experienceYears}+ years experience
+                  </li>
+                )}
                 {doctor.languages.length > 0 && (
                   <li className="inline-flex items-center gap-2">
                     <Languages className="size-4 text-brand-600" aria-hidden="true" />

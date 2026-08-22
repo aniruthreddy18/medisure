@@ -77,6 +77,8 @@ export function ManageBooking({ bookingRef }: { bookingRef: string }) {
       const json = await post("/api/manage", { action: "request-code", ref: bookingRef });
       setMaskedPhone(json.maskedPhone);
       setDevCode(json.devCode ?? null);
+      // See OtpStep: development convenience, absent in production.
+      if (json.devCode) setCode(json.devCode);
       setStage("code");
     } catch (e) {
       setError((e as Error).message);
@@ -177,8 +179,9 @@ export function ManageBooking({ bookingRef }: { bookingRef: string }) {
           <>
             {devCode && (
               <p className="mt-5 rounded-xl border border-dashed border-brand-300 bg-brand-50 p-3 text-sm text-brand-800">
-                Development mode — no SMS was sent. Your code is{" "}
-                <strong className="font-mono tracking-widest">{devCode}</strong>
+                Test mode — no SMS was sent. Code{" "}
+                <strong className="font-mono tracking-widest">{devCode}</strong>{" "}
+                has been filled in for you.
               </p>
             )}
             <label className="mt-5 block">

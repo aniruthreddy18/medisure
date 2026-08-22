@@ -1,11 +1,6 @@
 {
-  "/api/otp/send/route": "app/api/otp/send/route.js",
-  "/book/home-physio/page": "app/book/home-physio/page.js",
-  "/book/op/page": "app/book/op/page.js",
+  "/about/page": "app/about/page.js",
+  "/doctors/[slug]/page": "app/doctors/[slug]/page.js",
   "/doctors/page": "app/doctors/page.js",
-  "/home-physiotherapy/page": "app/home-physiotherapy/page.js",
-  "/manage/[ref]/page": "app/manage/[ref]/page.js",
-  "/manage/page": "app/manage/page.js",
-  "/page": "app/page.js",
-  "/second-opinion/page": "app/second-opinion/page.js"
+  "/page": "app/page.js"
 }

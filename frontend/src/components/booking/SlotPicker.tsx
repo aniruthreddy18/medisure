@@ -5,15 +5,27 @@ import { Loader2, CalendarX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateLabel, formatTimeLabel, partOfDay, upcomingDateKeys } from "@medisure/backend/time";
 
-type Slot = { startTime: string; endTime: string; available: boolean };
+type Slot = {
+  startTime: string;
+  endTime: string;
+  capacity: number;
+  booked: number;
+  remaining: number;
+  available: boolean;
+};
 
 /**
- * Date strip + slot grid.
+ * Date strip + booking windows.
  *
- * Availability is always fetched fresh from the server — never cached and
- * never derived on the client — so a patient does not pick a slot that was
- * taken thirty seconds ago. The final word still belongs to the database
- * constraint at booking time.
+ * OPD runs as a token queue: each window is an hour holding several patients,
+ * so the button shows how many places are left rather than pretending the time
+ * is exclusive. Home visits use the same component with a capacity of one, and
+ * simply show the time.
+ *
+ * Availability is always fetched fresh from the server — never cached, never
+ * derived on the client — so a patient does not pick a window that filled up
+ * thirty seconds ago. The final word still belongs to the database constraint
+ * at booking time.
  */
 export function SlotPicker({
   doctorId,
@@ -120,7 +132,7 @@ export function SlotPicker({
         ) : slots.length === 0 ? (
           <div className="rounded-xl border border-dashed border-border p-8 text-center">
             <CalendarX className="mx-auto size-6 text-ink-400" aria-hidden="true" />
-            <p className="mt-3 font-medium text-ink-700">No times available on this date</p>
+            <p className="mt-3 font-medium text-ink-700">No booking windows left on this date</p>
             <p className="mt-1 text-sm text-ink-500">
               Try another date, or call our booking desk for help.
             </p>
@@ -136,7 +148,7 @@ export function SlotPicker({
                   <legend className="mb-3 text-sm font-semibold text-ink-700">
                     {group}{" "}
                     <span className="font-normal text-ink-400">
-                      ({inGroup.length} {inGroup.length === 1 ? "slot" : "slots"})
+                      ({inGroup.length} {inGroup.length === 1 ? "window" : "windows"})
                     </span>
                   </legend>
                   <div className="flex flex-wrap gap-2">
@@ -156,13 +168,31 @@ export function SlotPicker({
                             })
                           }
                           className={cn(
-                            "min-h-11 rounded-xl border px-4 text-sm font-medium transition-colors",
+                            "min-h-14 rounded-xl border px-4 py-2 text-left transition-colors",
                             selected
-                              ? "border-accent-500 bg-accent-500 text-white"
-                              : "border-border bg-white text-ink-700 hover:border-brand-400 hover:bg-brand-50",
+                              ? "border-brand-600 bg-brand-600 text-white"
+                              : "border-ink-200 bg-white text-ink-700 hover:border-brand-400 hover:bg-brand-50",
                           )}
                         >
-                          {formatTimeLabel(slot.startTime)}
+                          <span className="block text-sm font-semibold">
+                            {slot.capacity > 1
+                              ? `${formatTimeLabel(slot.startTime)} – ${formatTimeLabel(slot.endTime)}`
+                              : formatTimeLabel(slot.startTime)}
+                          </span>
+                          {slot.capacity > 1 && (
+                            <span
+                              className={cn(
+                                "mt-0.5 block text-xs",
+                                selected
+                                  ? "text-white/80"
+                                  : slot.remaining <= 2
+                                    ? "font-medium text-brand-700"
+                                    : "text-ink-500",
+                              )}
+                            >
+                              {slot.remaining} of {slot.capacity} left
+                            </span>
+                          )}
                         </button>
                       );
                     })}

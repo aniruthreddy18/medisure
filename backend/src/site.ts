@@ -12,14 +12,14 @@
 export const site = {
   name: "MediSure Hospital", // TODO: client
   legalName: "MediSure Hospital Pvt Ltd", // TODO: client
-  tagline: "Expert care for movement, bones and surgery",
+  tagline: "Your health is our priority",
   description:
-    "Multi-speciality hospital specialising in physiotherapy, orthopaedics and general surgery, with home physiotherapy across the city.",
+    "A premier multi-speciality hospital in the heart of Kukatpally, providing transparent, ethical and patient-oriented care across all age groups — with seamless insurance support under one roof.",
 
   // TODO: client — used in JSON-LD MedicalClinic and the contact page
   address: {
     street: "123 Hospital Road",
-    locality: "Area Name",
+    locality: "Kukatpally",
     city: "Hyderabad",
     state: "Telangana",
     postalCode: "500001",

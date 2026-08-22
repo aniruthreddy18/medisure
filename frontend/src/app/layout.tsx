@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import { site } from "@medisure/backend/site";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { MobileBookBar } from "@/components/layout/MobileBookBar";
+import { HeaderSpacer } from "@/components/layout/HeaderSpacer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -12,9 +12,12 @@ const inter = Inter({
   display: "swap",
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
+// A high-contrast serif to echo the monogram in the logo. Inter alone
+// would lose the classical note the crowned mark sets up.
+const serif = Source_Serif_4({
+  variable: "--font-serif",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
@@ -48,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-IN"
-      className={`${inter.variable} ${jakarta.variable} h-full antialiased`}
+      className={`${inter.variable} ${serif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background">
         <a
@@ -58,11 +61,11 @@ export default function RootLayout({
           Skip to main content
         </a>
         <Header />
-        <main id="main" className="flex-1 pb-20 lg:pb-0">
+        <HeaderSpacer />
+        <main id="main" className="flex-1">
           {children}
         </main>
         <Footer />
-        <MobileBookBar />
       </body>
     </html>
   );

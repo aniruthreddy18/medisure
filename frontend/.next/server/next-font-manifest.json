@@ -2,95 +2,99 @@
   "app": {
     "[project]/frontend/src/app/_not-found/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/about/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/achievements/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/book/home-physio/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/book/op/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/book/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/book/success/[ref]/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/contact/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/doctors/[slug]/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/doctors/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/gallery/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/home-physiotherapy/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/insurance/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/manage/[ref]/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/manage/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
+    ],
+    "[project]/frontend/src/app/medical-services/page": [
+      "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/privacy/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/refund-policy/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/second-opinion/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/specialities/[slug]/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/specialities/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/terms/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ],
     "[project]/frontend/src/app/testimonials/page": [
       "static/media/83afe278b6a6bb3c-s.p.2bn3s6zvc0dyp.woff2",
-      "static/media/fba5a26ea33df6a3-s.p.18rizl4rsrl42.woff2"
+      "static/media/68d403cf9f2c68c5-s.p.20at88_q9f_kt.woff2"
     ]
   },
   "appUsingSizeAdjust": true,

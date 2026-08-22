@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { Check, Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SlotPicker } from "@/components/booking/SlotPicker";
+import {
+  useRazorpayCheckout,
+  type PaymentOrder,
+} from "@/components/booking/useRazorpayCheckout";
 import { OtpStep } from "@/components/booking/OtpStep";
 import { formatDateLabel, formatTimeLabel } from "@medisure/backend/time";
 
@@ -13,14 +17,14 @@ type Doctor = {
   name: string;
   slug: string;
   designation: string;
-  experienceYears: number;
+  experienceYears: number | null;
   opFeePaise: number;
   departments: { department: { id: string; name: string; slug: string } }[];
 };
 
 type Department = { id: string; name: string; slug: string };
 
-const STEPS = ["Speciality", "Doctor", "Date & time", "Your details"] as const;
+const STEPS = ["Speciality", "Doctor", "Date & time", "Your details", "Payment"] as const;
 
 export function OpBookingFlow({
   departments,
@@ -34,6 +38,7 @@ export function OpBookingFlow({
   initialDoctor?: string;
 }) {
   const router = useRouter();
+  const openCheckout = useRazorpayCheckout();
 
   const preDoctor = doctors.find((d) => d.slug === initialDoctor) ?? null;
   const preDept =
@@ -59,8 +64,24 @@ export function OpBookingFlow({
   const [verification, setVerification] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
+  const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+
+  /**
+   * The reserved-but-unpaid booking.
+   *
+   * Reserving and paying are separate steps on purpose: if a payment fails or
+   * the patient closes the Razorpay window, the place is still held and they
+   * can simply pay again. Re-submitting the whole form would have thrown the
+   * held place away and made them start over.
+   */
+  const [reserved, setReserved] = useState<{
+    ref: string;
+    tokenNumber: number | null;
+    amountPaise: number;
+    order: PaymentOrder;
+  } | null>(null);
 
   const visibleDoctors = dept
     ? doctors.filter((d) => d.departments.some((x) => x.department.id === dept.id))
@@ -110,11 +131,69 @@ export function OpBookingFlow({
         return;
       }
 
-      router.push(`/book/success/${json.ref}`);
+      // Nothing to pay (a session inside an already-paid package).
+      if (!json.requiresPayment || !json.payment) {
+        router.push(`/book/success/${json.ref}`);
+        return;
+      }
+
+      // Place is held. Show the invoice before sending them to Razorpay, so
+      // they see exactly what is about to be charged.
+      setReserved({
+        ref: json.ref,
+        tokenNumber: json.tokenNumber ?? null,
+        amountPaise: json.amountPaise,
+        order: json.payment,
+      });
+      setStep(4);
     } catch {
       setError("We could not reach the server. Please check your connection and try again.");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  /** Open Razorpay for the already-reserved booking. Safe to call repeatedly. */
+  async function payNow() {
+    if (!reserved) return;
+    setPaying(true);
+    setError(null);
+
+    try {
+      const outcome = await openCheckout({
+        order: reserved.order,
+        patientName: form.patientName,
+        phone: form.phone,
+        email: form.email || null,
+        description: `OP consultation — ${doctor?.name ?? ""}`,
+      });
+
+      if (outcome.status === "failed") {
+        setError(`${outcome.message} Your place is still held — you can try again.`);
+        return;
+      }
+      if (outcome.status === "dismissed") {
+        setError("Payment was not completed. Your place is still held — try again below.");
+        return;
+      }
+      if (outcome.status === "pending" && outcome.reason === "stub") {
+        // No gateway configured. Say so rather than silently landing the
+        // patient on a "payment pending" page with no explanation.
+        setError(
+          "No payment gateway is connected yet, so there is nothing to redirect to. " +
+            "Add your Razorpay keys to RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET, then restart. " +
+            "The booking below is held but unpaid.",
+        );
+        return;
+      }
+
+      // Paid, or pending while the gateway settles. The confirmation page
+      // reads the real status from the database either way.
+      router.push(`/book/success/${reserved.ref}`);
+    } catch {
+      setError("We could not reach the payment gateway. Please try again.");
+    } finally {
+      setPaying(false);
     }
   }
 
@@ -146,7 +225,7 @@ export function OpBookingFlow({
           ))}
         </ol>
 
-        {step > 0 && (
+        {step > 0 && step !== 4 && (
           <button
             type="button"
             onClick={() => setStep((s) => s - 1)}
@@ -213,9 +292,11 @@ export function OpBookingFlow({
                   <span>
                     <span className="block font-display font-semibold text-brand-900">{d.name}</span>
                     <span className="mt-0.5 block text-sm text-ink-600">{d.designation}</span>
-                    <span className="mt-1 block text-sm text-ink-500">
-                      {d.experienceYears}+ years experience
-                    </span>
+                    {d.experienceYears !== null && (
+                      <span className="mt-1 block text-sm text-ink-500">
+                        {d.experienceYears}+ years experience
+                      </span>
+                    )}
                   </span>
                   <span className="shrink-0 text-right">
                     <span className="block font-semibold text-brand-900">
@@ -369,11 +450,85 @@ export function OpBookingFlow({
               className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-7 font-semibold text-white transition-colors hover:bg-accent-600 disabled:opacity-60 sm:w-auto"
             >
               {submitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
-              {submitting ? "Reserving your slot…" : "Confirm & continue to payment"}
+              {submitting ? "Holding your place…" : "Review booking"}
             </button>
             </>
             )}
           </form>
+        )}
+
+        {/* Step 5 — invoice, then straight to Razorpay */}
+        {step === 4 && reserved && doctor && slot && (
+          <div>
+            <h2 className="font-display text-xl font-bold text-ink-950">
+              Review and pay
+            </h2>
+            <p className="mt-1.5 text-ink-600">
+              Your place is held for a few minutes while you complete payment.
+            </p>
+
+            <div className="mt-6 overflow-hidden rounded-2xl border border-ink-200">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink-200 bg-ink-50 px-6 py-4">
+                <div>
+                  <p className="font-display font-semibold text-ink-900">Invoice</p>
+                  <p className="mt-0.5 font-mono text-sm text-ink-500">{reserved.ref}</p>
+                </div>
+                {reserved.tokenNumber !== null && (
+                  <div className="text-right">
+                    <p className="text-xs uppercase tracking-wider text-ink-500">Token</p>
+                    <p className="font-display text-xl font-bold text-brand-700">
+                      {reserved.tokenNumber}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <dl className="divide-y divide-ink-100 px-6">
+                <InvoiceRow label="Patient" value={form.patientName} />
+                <InvoiceRow label="Mobile" value={form.phone} />
+                <InvoiceRow label="Doctor" value={doctor.name} />
+                {dept && <InvoiceRow label="Speciality" value={dept.name} />}
+                <InvoiceRow
+                  label="Appointment"
+                  value={`${formatDateLabel(slot.date)}, ${formatTimeLabel(slot.startTime)} – ${formatTimeLabel(slot.endTime)}`}
+                />
+              </dl>
+
+              <div className="flex items-center justify-between border-t border-ink-200 bg-brand-50 px-6 py-5">
+                <span className="font-display font-semibold text-ink-900">
+                  Amount payable
+                </span>
+                <span className="font-display text-2xl font-bold text-brand-700">
+                  ₹{(reserved.amountPaise / 100).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            {reserved.order.stub && (
+              <p className="mt-5 rounded-xl border border-dashed border-brand-300 bg-brand-50 p-4 text-sm leading-relaxed text-ink-700">
+                <strong className="font-semibold">Payment gateway not connected.</strong>{" "}
+                Razorpay keys are not set, so this button cannot redirect anywhere
+                yet. Add <code className="font-mono text-xs">RAZORPAY_KEY_ID</code> and{" "}
+                <code className="font-mono text-xs">RAZORPAY_KEY_SECRET</code> to{" "}
+                <code className="font-mono text-xs">.env</code> and restart the server.
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={payNow}
+              disabled={paying}
+              className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-7 font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60 sm:w-auto"
+            >
+              {paying && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+              {error ? "Retry payment" : "Continue to payment"}
+            </button>
+
+            <p className="mt-3 text-sm text-ink-500">
+              You will be taken to Razorpay to pay securely. We never see your card
+              details.
+            </p>
+          </div>
         )}
       </div>
 
@@ -413,6 +568,15 @@ export function OpBookingFlow({
           </p>
         </div>
       </aside>
+    </div>
+  );
+}
+
+function InvoiceRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-6 py-3.5 text-sm">
+      <dt className="text-ink-500">{label}</dt>
+      <dd className="text-right font-medium text-ink-900">{value}</dd>
     </div>
   );
 }

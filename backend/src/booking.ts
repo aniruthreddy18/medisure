@@ -15,6 +15,27 @@ export function generateRef(prefix = "MS"): string {
   return `${prefix}-${out}`;
 }
 
+/**
+ * Was this a dropped/refused database connection rather than a real conflict?
+ *
+ * Pooled connections die for mundane reasons — a restart, an idle timeout, a
+ * network blip. A patient must not lose their booking because one connection
+ * dropped mid-request, so these are retried rather than surfaced.
+ */
+function isTransientConnectionError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const e = error as { code?: string; message?: string };
+  if (e.code === "P1017" || e.code === "P1001" || e.code === "P2024") return true;
+  const msg = String(e.message ?? "");
+  return (
+    msg.includes("ConnectionClosed") ||
+    msg.includes("Connection terminated") ||
+    msg.includes("Server has closed the connection")
+  );
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export class SlotUnavailableError extends Error {
   constructor(message = "That time slot has just been taken. Please choose another.") {
     super(message);
@@ -66,46 +87,91 @@ export async function createHold(input: CreateHoldInput) {
     ...rest
   } = input;
 
-  // Cheap pre-check: gives a clean error for the common case (slot already
-  // gone, doctor on leave, time in the past) without relying on a constraint
-  // violation for ordinary flow control.
   const slots = await getSlots(doctorId, dateKey, serviceType);
   const slot = slots.find((s) => s.startTime === startTime && s.available);
   if (!slot) throw new SlotUnavailableError();
 
   const holdExpiresAt = new Date(Date.now() + site.booking.holdMinutes * 60_000);
 
-  try {
-    return await db.appointment.create({
-      data: {
-        ref: generateRef(),
-        serviceType,
+  /**
+   * Token assignment.
+   *
+   * Take the lowest token nobody is holding. Two patients can compute the same
+   * free token at the same instant — the unique index on `slotLock` lets only
+   * one of them insert it, and the loser simply tries the next one.
+   *
+   * The attempt budget is deliberately larger than the capacity. Under heavy
+   * contention a request can lose several races in a row while places are
+   * still free, and a budget equal to capacity would reject it even though the
+   * window was not full. Giving up is driven by the freshly-read token count
+   * below, not by running out of attempts.
+   */
+  const maxAttempts = slot.capacity * 3;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+    const used = await db.appointment.findMany({
+      where: {
         doctorId,
-        departmentId: rest.departmentId ?? null,
-        packageBookingId: packageBookingId ?? null,
-        patientName: rest.patientName,
-        phone: rest.phone,
-        email: rest.email ?? null,
-        age: rest.age ?? null,
-        gender: rest.gender ?? null,
-        notes: rest.notes ?? null,
-        addressLine: rest.addressLine ?? null,
-        area: rest.area ?? null,
-        pincode: rest.pincode ?? null,
-        landmark: rest.landmark ?? null,
         date: fromDateKey(dateKey),
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        status: "HOLD",
-        amountPaise,
-        holdExpiresAt,
-        slotLock: buildSlotLock(doctorId, dateKey, startTime),
+        startTime,
+        status: { in: ["HOLD", "CONFIRMED", "COMPLETED"] },
       },
+      select: { tokenNumber: true },
     });
-  } catch (error) {
-    if (isUniqueViolation(error, "slotLock")) throw new SlotUnavailableError();
-    throw error;
+
+    const takenTokens = new Set(used.map((u) => u.tokenNumber ?? 0));
+    if (takenTokens.size >= slot.capacity) throw new SlotUnavailableError();
+
+    let token = 1;
+    while (takenTokens.has(token) && token <= slot.capacity) token++;
+    if (token > slot.capacity) throw new SlotUnavailableError();
+
+    try {
+      return await db.appointment.create({
+        data: {
+          ref: generateRef(),
+          serviceType,
+          doctorId,
+          departmentId: rest.departmentId ?? null,
+          packageBookingId: packageBookingId ?? null,
+          patientName: rest.patientName,
+          phone: rest.phone,
+          email: rest.email ?? null,
+          age: rest.age ?? null,
+          gender: rest.gender ?? null,
+          notes: rest.notes ?? null,
+          addressLine: rest.addressLine ?? null,
+          area: rest.area ?? null,
+          pincode: rest.pincode ?? null,
+          landmark: rest.landmark ?? null,
+          date: fromDateKey(dateKey),
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          tokenNumber: token,
+          status: "HOLD",
+          amountPaise,
+          holdExpiresAt,
+          slotLock: buildSlotLock(doctorId, dateKey, startTime, token),
+        },
+      });
+    } catch (error) {
+      // Somebody else took this token in the microseconds since we checked.
+      // Loop round and pick the next free one.
+      if (isUniqueViolation(error, "slotLock")) continue;
+      throw error;
+    }
+    } catch (error) {
+      if (error instanceof SlotUnavailableError) throw error;
+      if (isTransientConnectionError(error)) {
+        // Brief backoff, then try the whole attempt again.
+        await sleep(40 * (attempt + 1));
+        continue;
+      }
+      throw error;
+    }
   }
+
+  throw new SlotUnavailableError();
 }
 
 /**
@@ -245,7 +311,9 @@ export async function createPackagePurchase(input: CreatePackagePurchaseInput) {
           // admin revenue view does not count the same rupees twice.
           amountPaise: 0,
           holdExpiresAt: new Date(Date.now() + site.booking.holdMinutes * 60_000),
-          slotLock: buildSlotLock(doctorId, dateKey, startTime),
+          // Home visits are one-to-one, so the queue token is always 1.
+          tokenNumber: 1,
+          slotLock: buildSlotLock(doctorId, dateKey, startTime, 1),
         },
       });
 
@@ -305,7 +373,8 @@ export async function schedulePackageSession(
           // Already paid for, so it is confirmed immediately — no payment step.
           status: "CONFIRMED",
           amountPaise: 0,
-          slotLock: buildSlotLock(booking.doctorId!, dateKey, startTime),
+          tokenNumber: 1,
+          slotLock: buildSlotLock(booking.doctorId!, dateKey, startTime, 1),
         },
       });
 

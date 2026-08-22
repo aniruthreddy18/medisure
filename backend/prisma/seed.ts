@@ -20,6 +20,8 @@ import { Gender, ServiceType, PackageBadge, CtaMode, AdminRole } from "../src/ge
 const rupees = (r: number) => r * 100; // → paise
 
 async function seedDepartments() {
+  // Departments derived from the client's actual doctor list. The three the
+  // hospital wants highlighted are flagged isCore.
   const departments = [
     {
       slug: "physiotherapy",
@@ -29,7 +31,7 @@ async function seedDepartments() {
       order: 1,
       shortDesc: "Restore movement after injury, surgery or stroke — at the hospital or in your home.",
       longDesc:
-        "Our physiotherapy team treats pain and restricted movement with hands-on therapy, graded exercise and rehabilitation planning. We run a dedicated home physiotherapy service for patients who cannot travel, including post-surgical and neurological rehabilitation.",
+        "Our physiotherapy team treats pain and restricted movement with hands-on therapy, graded exercise and rehabilitation planning, including a dedicated home physiotherapy service for patients who cannot travel.",
     },
     {
       slug: "orthopaedics",
@@ -37,36 +39,32 @@ async function seedDepartments() {
       icon: "Bone",
       isCore: true,
       order: 2,
-      shortDesc: "Joint replacement, fracture care, spine and sports injury treatment.",
+      shortDesc: "Joint replacement, spine care, fracture and sports injury treatment.",
       longDesc:
-        "The orthopaedic department manages the full range of bone and joint conditions — from fractures and sports injuries to knee and hip replacement and degenerative spine disease, supported by on-site imaging and a physiotherapy team for recovery.",
+        "The orthopaedic department manages the full range of bone and joint conditions — fractures, sports injuries, spine disorders, and knee and hip replacement — supported by on-site imaging and physiotherapy.",
     },
     {
       slug: "general-surgery",
-      name: "General Surgery",
+      name: "General & Laparoscopic Surgery",
       icon: "Stethoscope",
       isCore: true,
       order: 3,
       shortDesc: "Laparoscopic and open surgery with structured pre- and post-operative care.",
       longDesc:
-        "Our surgeons perform laparoscopic and open procedures including hernia repair, gallbladder surgery, appendicectomy and proctology, with a defined pre-operative assessment and post-operative follow-up pathway.",
+        "Our surgeons perform laparoscopic and open procedures including hernia repair, gallbladder surgery, appendicectomy and proctology, with a defined assessment and follow-up pathway.",
     },
-    {
-      slug: "general-medicine",
-      name: "General Medicine",
-      icon: "HeartPulse",
-      isCore: false,
-      order: 4,
-      shortDesc: "Everyday illness, diabetes, blood pressure and preventive health.",
-    },
-    {
-      slug: "diagnostics",
-      name: "Diagnostics & Imaging",
-      icon: "ScanLine",
-      isCore: false,
-      order: 5,
-      shortDesc: "X-ray, ultrasound and laboratory services on site.",
-    },
+    { slug: "general-medicine", name: "General Medicine", icon: "HeartPulse", isCore: false, order: 4, shortDesc: "Everyday illness, diabetes, blood pressure and preventive health." },
+    { slug: "paediatrics", name: "Paediatrics", icon: "Baby", isCore: false, order: 5, shortDesc: "Newborn, child and adolescent health, vaccination and growth care." },
+    { slug: "gynaecology-obstetrics", name: "Gynaecology & Obstetrics", icon: "HeartPulse", isCore: false, order: 6, shortDesc: "Women's health, pregnancy care and laparoscopic gynaecological surgery." },
+    { slug: "gastroenterology", name: "Gastroenterology", icon: "Stethoscope", isCore: false, order: 7, shortDesc: "Digestive, liver and endoscopic care." },
+    { slug: "ent", name: "ENT", icon: "Ear", isCore: false, order: 8, shortDesc: "Ear, nose and throat treatment and surgery." },
+    { slug: "pulmonology", name: "Pulmonology", icon: "Wind", isCore: false, order: 9, shortDesc: "Asthma, COPD, sleep and respiratory care." },
+    { slug: "cardiology", name: "Cardiology", icon: "HeartPulse", isCore: false, order: 10, shortDesc: "Heart health, diagnostics and interventional care." },
+    { slug: "urology", name: "Urology", icon: "Stethoscope", isCore: false, order: 11, shortDesc: "Kidney stones, prostate and urinary tract treatment." },
+    { slug: "oncology", name: "Surgical Oncology", icon: "Stethoscope", isCore: false, order: 12, shortDesc: "Cancer surgery and multidisciplinary treatment planning." },
+    { slug: "neurology", name: "Neurology & Neurosurgery", icon: "Brain", isCore: false, order: 13, shortDesc: "Brain, spine and nerve conditions." },
+    { slug: "plastic-surgery", name: "Plastic & Reconstructive Surgery", icon: "Stethoscope", isCore: false, order: 14, shortDesc: "Reconstructive and cosmetic procedures." },
+    { slug: "dental", name: "Dental & Maxillofacial Surgery", icon: "Stethoscope", isCore: false, order: 15, shortDesc: "Oral surgery, extractions and maxillofacial care." },
   ];
 
   for (const d of departments) {
@@ -108,35 +106,52 @@ async function seedConditions(deptIds: Record<string, string>) {
 }
 
 async function seedDoctors(deptIds: Record<string, string>) {
-  // 20 doctors — the hospital's stated headcount.
-  const doctors = [
-    // Physiotherapy (7) — 5 of whom take home visits
-    { name: "Dr. Ananya Rao", gender: Gender.FEMALE, dept: ["physiotherapy"], designation: "Chief Physiotherapist", qualifications: "BPT, MPT (Neurology)", exp: 16, home: true, opFee: 500, homeFee: 899, langs: ["English", "Hindi", "Telugu"], featured: true },
-    { name: "Dr. Vikram Shetty", gender: Gender.MALE, dept: ["physiotherapy"], designation: "Senior Physiotherapist — Sports", qualifications: "BPT, MPT (Sports Medicine)", exp: 12, home: true, opFee: 500, homeFee: 899, langs: ["English", "Hindi", "Kannada"], featured: true },
-    { name: "Dr. Meera Krishnan", gender: Gender.FEMALE, dept: ["physiotherapy"], designation: "Consultant Physiotherapist", qualifications: "BPT, MPT (Orthopaedics)", exp: 9, home: true, opFee: 450, homeFee: 849, langs: ["English", "Tamil", "Telugu"] },
-    { name: "Dr. Rahul Deshmukh", gender: Gender.MALE, dept: ["physiotherapy"], designation: "Consultant Physiotherapist — Neuro Rehab", qualifications: "BPT, MPT (Neurology)", exp: 11, home: true, opFee: 500, homeFee: 899, langs: ["English", "Hindi", "Marathi"] },
-    { name: "Dr. Sneha Patil", gender: Gender.FEMALE, dept: ["physiotherapy"], designation: "Physiotherapist — Geriatric Care", qualifications: "BPT, MPT (Geriatrics)", exp: 7, home: true, opFee: 450, homeFee: 849, langs: ["English", "Hindi", "Marathi"] },
-    { name: "Dr. Imran Qureshi", gender: Gender.MALE, dept: ["physiotherapy"], designation: "Physiotherapist — Cardio-Pulmonary", qualifications: "BPT, MPT (Cardiopulmonary)", exp: 8, home: false, opFee: 450, langs: ["English", "Hindi", "Urdu"] },
-    { name: "Dr. Lakshmi Narayanan", gender: Gender.FEMALE, dept: ["physiotherapy"], designation: "Physiotherapist — Women's Health", qualifications: "BPT, MPT", exp: 6, home: false, opFee: 450, langs: ["English", "Tamil", "Telugu"] },
-
-    // Orthopaedics (6)
-    { name: "Dr. Suresh Reddy", gender: Gender.MALE, dept: ["orthopaedics"], designation: "Senior Consultant — Joint Replacement", qualifications: "MBBS, MS (Ortho), FRCS", exp: 24, home: false, opFee: 900, langs: ["English", "Hindi", "Telugu"], featured: true },
-    { name: "Dr. Kavita Menon", gender: Gender.FEMALE, dept: ["orthopaedics"], designation: "Consultant Orthopaedic Surgeon — Spine", qualifications: "MBBS, MS (Ortho), Fellowship in Spine Surgery", exp: 15, home: false, opFee: 800, langs: ["English", "Hindi", "Malayalam"], featured: true },
-    { name: "Dr. Arjun Malhotra", gender: Gender.MALE, dept: ["orthopaedics"], designation: "Consultant — Sports Injury & Arthroscopy", qualifications: "MBBS, MS (Ortho), DNB", exp: 13, home: false, opFee: 800, langs: ["English", "Hindi", "Punjabi"] },
-    { name: "Dr. Pradeep Kumar", gender: Gender.MALE, dept: ["orthopaedics"], designation: "Consultant — Trauma & Fracture Care", qualifications: "MBBS, MS (Ortho)", exp: 18, home: false, opFee: 700, langs: ["English", "Hindi", "Telugu"] },
-    { name: "Dr. Farida Hussain", gender: Gender.FEMALE, dept: ["orthopaedics"], designation: "Consultant Orthopaedic Surgeon", qualifications: "MBBS, DNB (Ortho)", exp: 10, home: false, opFee: 700, langs: ["English", "Hindi", "Urdu"] },
-    { name: "Dr. Ganesh Iyer", gender: Gender.MALE, dept: ["orthopaedics", "physiotherapy"], designation: "Consultant — Paediatric Orthopaedics", qualifications: "MBBS, MS (Ortho), Fellowship in Paediatric Ortho", exp: 14, home: false, opFee: 800, langs: ["English", "Tamil", "Hindi"] },
-
-    // General Surgery (4)
-    { name: "Dr. Rajesh Varma", gender: Gender.MALE, dept: ["general-surgery"], designation: "Senior Consultant — Laparoscopic Surgery", qualifications: "MBBS, MS (General Surgery), FMAS", exp: 22, home: false, opFee: 900, langs: ["English", "Hindi", "Telugu"], featured: true },
-    { name: "Dr. Nithya Balan", gender: Gender.FEMALE, dept: ["general-surgery"], designation: "Consultant General & Laparoscopic Surgeon", qualifications: "MBBS, MS (General Surgery)", exp: 12, home: false, opFee: 800, langs: ["English", "Tamil", "Telugu"] },
-    { name: "Dr. Sameer Joshi", gender: Gender.MALE, dept: ["general-surgery"], designation: "Consultant — Proctology & Day-Care Surgery", qualifications: "MBBS, MS, DNB", exp: 11, home: false, opFee: 750, langs: ["English", "Hindi", "Marathi"] },
-    { name: "Dr. Anil Chatterjee", gender: Gender.MALE, dept: ["general-surgery"], designation: "Consultant General Surgeon", qualifications: "MBBS, MS (General Surgery)", exp: 16, home: false, opFee: 750, langs: ["English", "Hindi", "Bengali"] },
-
-    // General Medicine (3)
-    { name: "Dr. Priya Sundaram", gender: Gender.FEMALE, dept: ["general-medicine"], designation: "Consultant Physician", qualifications: "MBBS, MD (General Medicine)", exp: 14, home: false, opFee: 600, langs: ["English", "Tamil", "Telugu"] },
-    { name: "Dr. Mohan Bhat", gender: Gender.MALE, dept: ["general-medicine"], designation: "Consultant Physician — Diabetes Care", qualifications: "MBBS, MD, Fellowship in Diabetology", exp: 19, home: false, opFee: 600, langs: ["English", "Hindi", "Kannada"] },
-    { name: "Dr. Zoya Ahmed", gender: Gender.FEMALE, dept: ["general-medicine"], designation: "Consultant Physician", qualifications: "MBBS, MD (General Medicine)", exp: 8, home: false, opFee: 550, langs: ["English", "Hindi", "Urdu"] },
+  /**
+   * The hospital's real consulting panel, taken from the client's
+   * "DOCTOR LIST" spreadsheet. Fees are the consultation charges from that
+   * sheet, in rupees.
+   *
+   * Two fields are deliberately left blank rather than invented:
+   *   - `gender` — not in the source, and guessing it from a name risks
+   *     misgendering a real person
+   *   - `experienceYears` — not in the source; publishing an invented figure
+   *     for a named physician would be fabricating a credential
+   * Both should be filled in once the hospital confirms them.
+   */
+  const doctors: {
+    name: string;
+    dept: string[];
+    designation: string;
+    qualifications: string;
+    fee: number;
+    home?: boolean;
+    featured?: boolean;
+  }[] = [
+    { name: "Dr. M. Dhanunjaya", dept: ["physiotherapy"], designation: "Senior Physiotherapist", qualifications: "BPT, M.P.T (Ortho), M.I.A.P", fee: 600, home: true, featured: true },
+    { name: "Dr. P. V. Satyanarayana Murthy", dept: ["orthopaedics"], designation: "Orthopaedic & Spine Surgeon", qualifications: "MBBS, DNB (Ortho), Fellowship in Spine", fee: 650, featured: true },
+    { name: "Dr. A. S. N. Murthy", dept: ["paediatrics"], designation: "Paediatrician", qualifications: "MBBS, DCH (Paediatrics)", fee: 600 },
+    { name: "Dr. S. Vishnu Prasad Reddy", dept: ["general-surgery"], designation: "General & Laparoscopic Surgeon", qualifications: "MBBS, DNB (GS), FIAGES, FMAS", fee: 800, featured: true },
+    { name: "Dr. M. Mounika", dept: ["gynaecology-obstetrics"], designation: "Gynaecologist & Obstetrician", qualifications: "MBBS, MS (Gyn & Obs), FMAS, DMAS", fee: 600 },
+    { name: "Dr. Vamsidhar Reddy V", dept: ["gastroenterology"], designation: "Gastroenterologist", qualifications: "MBBS, MD (GM), GM (Gastro)", fee: 800 },
+    { name: "Dr. Badam Vamshi Kiran", dept: ["orthopaedics"], designation: "Sports Surgeon", qualifications: "MBBS, MS (Orthopaedics)", fee: 800 },
+    { name: "Dr. M. Manisha", dept: ["ent"], designation: "ENT Surgeon", qualifications: "MBBS, MS (ENT)", fee: 800 },
+    { name: "Dr. S. Swaroop Chandra", dept: ["orthopaedics"], designation: "Orthopaedic Surgeon", qualifications: "MBBS, MS (Ortho), DNB (Ortho), MNAMS (Ortho)", fee: 800 },
+    { name: "Dr. N. Shashikanth Reddy", dept: ["pulmonology"], designation: "Pulmonologist", qualifications: "MBBS, MS (Pulmonology)", fee: 800 },
+    { name: "Dr. G. Ravikanth", dept: ["general-medicine"], designation: "General Physician", qualifications: "MBBS, MD (General Medicine)", fee: 600 },
+    { name: "Dr. P. Suma Reddy", dept: ["general-medicine"], designation: "Duty Medical Officer", qualifications: "MBBS, DMO", fee: 500 },
+    { name: "Dr. CH. Tejeswi Das", dept: ["plastic-surgery"], designation: "Associate Consultant — Plastic Surgeon", qualifications: "MBBS, DNB, MCh", fee: 800 },
+    { name: "Dr. S. V. L. Narsimha Reddy", dept: ["orthopaedics"], designation: "Orthopaedic Trauma & Joint Replacement Surgeon", qualifications: "MBBS, DNB (Ortho), FIJR", fee: 800 },
+    { name: "Dr. B. Susruth Kumar", dept: ["cardiology"], designation: "Cardiologist", qualifications: "MBBS, MD (General Medicine), DM (Cardiology)", fee: 800 },
+    { name: "Dr. K. Harsha Teja", dept: ["gastroenterology"], designation: "Medical Gastroenterologist", qualifications: "MBBS, MD (General Medicine), DNB (Medical Gastroenterology)", fee: 800 },
+    { name: "Dr. T. Yeseswi", dept: ["orthopaedics"], designation: "Orthopaedic Surgeon", qualifications: "MBBS, MS (Orthopaedics)", fee: 800 },
+    { name: "Dr. Divya", dept: ["ent"], designation: "ENT Surgeon", qualifications: "MBBS, MS (ENT)", fee: 800 },
+    { name: "Dr. D. Nagendra", dept: ["pulmonology"], designation: "Pulmonologist", qualifications: "MBBS, DNB, DTCD", fee: 800 },
+    { name: "Dr. K. Mounika", dept: ["general-surgery"], designation: "General & Laparoscopic Surgeon", qualifications: "MBBS, DNB (GS), FMAS", fee: 800 },
+    { name: "Dr. S. Srinivas", dept: ["paediatrics"], designation: "Paediatrician", qualifications: "MBBS, MD (Paediatrics)", fee: 600 },
+    { name: "Dr. D. Sandeep", dept: ["urology"], designation: "Urologist", qualifications: "MBBS, MS (AIIMS), MCh (Urology)", fee: 800 },
+    { name: "Dr. Sandeep Vajja", dept: ["oncology"], designation: "Surgical Oncologist", qualifications: "MBBS, MS, DrNB (Surgical Onco), FMAS, FALS Oncology", fee: 1000 },
+    { name: "Dr. P. Amarnadh Reddy", dept: ["dental"], designation: "Dental Surgeon", qualifications: "MDS (Oral & Maxillofacial Surgery)", fee: 600 },
+    { name: "Dr. Chandrakanth", dept: ["neurology"], designation: "Neurosurgeon", qualifications: "MBBS, MS, MCh (Neurology)", fee: 800 },
   ];
 
   const slugify = (n: string) =>
@@ -151,63 +166,75 @@ async function seedDoctors(deptIds: Record<string, string>) {
       slug,
       designation: doc.designation,
       qualifications: doc.qualifications,
-      experienceYears: doc.exp,
-      gender: doc.gender,
-      languages: doc.langs,
-      // TODO(client): real medical council registration numbers
-      regNumber: `TSMC/${20000 + i}`,
-      opFeePaise: rupees(doc.opFee),
-      homeVisitFeePaise: doc.homeFee ? rupees(doc.homeFee) : null,
-      offersHomePhysio: doc.home,
+      experienceYears: null,
+      gender: null,
+      languages: ["English", "Telugu", "Hindi"], // TODO(client): confirm per doctor
+      regNumber: null, // TODO(client): medical council registration numbers
+      opFeePaise: rupees(doc.fee),
+      homeVisitFeePaise: doc.home ? rupees(899) : null,
+      offersHomePhysio: doc.home ?? false,
       featured: doc.featured ?? false,
       order: i,
-      bio: `${doc.name} is a ${doc.designation.toLowerCase()} with ${doc.exp} years of experience. Placeholder biography — to be replaced with the doctor's own text.`,
+      bio: null,
     };
 
     const d = await db.doctor.upsert({ where: { slug }, update: data, create: data });
 
     await db.doctorDepartment.deleteMany({ where: { doctorId: d.id } });
     await db.doctorDepartment.createMany({
-      data: doc.dept.map((s) => ({ doctorId: d.id, departmentId: deptIds[s] })),
+      data: doc.dept.map((sl) => ({ doctorId: d.id, departmentId: deptIds[sl] })),
     });
 
-    created.push({ id: d.id, home: doc.home, dept: doc.dept });
+    created.push({ id: d.id, home: doc.home ?? false, dept: doc.dept });
   }
+
+  // Remove any placeholder doctors from the earlier demo seed.
+  const realSlugs = doctors.map((d) => slugify(d.name));
+  await db.doctor.deleteMany({
+    where: { slug: { notIn: realSlugs }, appointments: { none: {} }, packages: { none: {} } },
+  });
 
   return created;
 }
 
 async function seedSchedules(doctors: { id: string; home: boolean }[]) {
+  /**
+   * Sample working hours, to be replaced with each doctor's real timings.
+   *
+   * OPD is a token queue: every hour of a doctor's working day is one bookable
+   * window holding 10 patients, who are seen in turn. Morning 09:00–13:00 and
+   * evening 17:00–20:00, Monday to Saturday, gives 7 windows a day and 70
+   * bookable places per doctor.
+   */
+  const OPD_HOURS = [
+    { startTime: "09:00", endTime: "13:00" }, // 4 windows
+    { startTime: "17:00", endTime: "20:00" }, // 3 windows
+  ];
+  const OPD_CAPACITY = 10;
+
   for (const doc of doctors) {
     await db.doctorSchedule.deleteMany({ where: { doctorId: doc.id } });
 
-    // OP clinics: Mon–Sat morning + evening. Sunday closed.
+    // Mon–Sat. Sunday closed for OPD.
     for (let day = 1; day <= 6; day++) {
-      await db.doctorSchedule.create({
-        data: {
-          doctorId: doc.id,
-          serviceType: ServiceType.OP,
-          dayOfWeek: day,
-          startTime: "09:00",
-          endTime: "13:00",
-          slotMinutes: 15,
-          location: "Main OPD Block",
-        },
-      });
-      await db.doctorSchedule.create({
-        data: {
-          doctorId: doc.id,
-          serviceType: ServiceType.OP,
-          dayOfWeek: day,
-          startTime: "17:00",
-          endTime: "20:00",
-          slotMinutes: 15,
-          location: "Main OPD Block",
-        },
-      });
+      for (const block of OPD_HOURS) {
+        await db.doctorSchedule.create({
+          data: {
+            doctorId: doc.id,
+            serviceType: ServiceType.OP,
+            dayOfWeek: day,
+            startTime: block.startTime,
+            endTime: block.endTime,
+            slotMinutes: 60,
+            capacityPerHour: OPD_CAPACITY,
+            location: "Main OPD Block",
+          },
+        });
+      }
     }
 
-    // Home physio: 7 days, hour-long visits with 30 minutes of travel between.
+    // Home physiotherapy: 7 days, hour-long visits with 30 minutes of travel
+    // between them, and only one patient per visit.
     if (doc.home) {
       for (let day = 0; day <= 6; day++) {
         await db.doctorSchedule.create({
@@ -219,6 +246,7 @@ async function seedSchedules(doctors: { id: string; home: boolean }[]) {
             endTime: "19:00",
             slotMinutes: 60,
             travelBufferMinutes: 30,
+            capacityPerHour: 1,
           },
         });
       }

@@ -147,8 +147,14 @@ model Doctor {
   photo           String?
   designation     String // "Senior Consultant — Orthopaedic Surgeon"
   qualifications  String // "MBBS, MS (Ortho), FRCS"
-  experienceYears Int
-  gender          Gender
+  /// Also optional: the client's doctor list carries no experience figures,
+  /// and inventing one for a named physician would be fabricating a
+  /// credential. The UI hides the line when it is unknown.
+  experienceYears Int?
+  /// Optional on purpose: gender is only set when the doctor has told us.
+  /// Guessing it from a name risks misgendering a real person, and the
+  /// directory filter simply skips doctors whose gender is unknown.
+  gender          Gender?
   /// Patients filter on this; matters most for home visits.
   languages       String[]
   bio             String?  @db.Text
@@ -208,9 +214,16 @@ model DoctorSchedule {
   startTime   String
   endTime     String
 
-  slotMinutes Int @default(15)
+  slotMinutes Int @default(60)
   /// Home visits need travel time between patients; added after each slot.
   travelBufferMinutes Int @default(0)
+
+  /// How many patients may book the same window.
+  ///
+  /// OPD runs as a token queue: an hour-long window holds 10 patients who are
+  /// seen in turn, which is how the hospital actually works. Home physiotherapy
+  /// stays at 1 — a physiotherapist can only be in one house at a time.
+  capacityPerHour Int @default(10)
 
   location String?
   active   Boolean @default(true)
@@ -350,6 +363,10 @@ model Appointment {
   startTime String
   endTime   String
 
+  /// Position in the queue for this window, 1..capacity. Printed on the
+  /// confirmation so the patient knows roughly when they will be called.
+  tokenNumber Int?
+
   // Home visit only
   addressLine String?
   area        String?
@@ -365,12 +382,16 @@ model Appointment {
 
   /// THE double-booking guard.
   ///
-  /// Format: "<doctorId>|<yyyy-mm-dd>|<HH:mm>". Unique across the table,
-  /// but NULLABLE — and Postgres permits unlimited NULLs in a unique index.
-  /// Active appointments carry the lock; cancelling or expiring one sets it
-  /// to NULL, which frees the slot for rebooking while the row survives for
-  /// reporting. Two concurrent bookings for the same slot therefore collide
-  /// on a database constraint, not on application logic that can race.
+  /// Format: "<doctorId>|<yyyy-mm-dd>|<HH:mm>#<token>". Unique across the
+  /// table, but NULLABLE — and Postgres permits unlimited NULLs in a unique
+  /// index. Active appointments carry the lock; cancelling or expiring one
+  /// sets it to NULL, which frees that token while the row survives for
+  /// reporting.
+  ///
+  /// Including the token number is what makes a capacity of 10 safe: two
+  /// patients racing for the same window take different tokens and both
+  /// succeed, while two racing for the same *token* collide on the database
+  /// constraint and the loser is retried onto the next free one.
   slotLock String? @unique
 
   cancelledBy  String?

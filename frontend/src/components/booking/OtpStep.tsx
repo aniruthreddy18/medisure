@@ -40,6 +40,10 @@ export function OtpStep({
         return;
       }
       setDevCode(json.devCode ?? null);
+      // Development only: the server returns the code because no SMS was sent,
+      // so fill it in rather than making the tester copy digits by hand. In
+      // production `devCode` is never present and this does nothing.
+      if (json.devCode) setCode(json.devCode);
       setStage("code");
     } catch {
       setError("Could not reach the server. Please try again.");
@@ -123,8 +127,9 @@ export function OtpStep({
         <div className="mt-5">
           {devCode && (
             <p className="mb-4 rounded-xl border border-dashed border-brand-300 bg-brand-50 p-3 text-sm text-brand-800">
-              Development mode — no SMS was sent. Your code is{" "}
-              <strong className="font-mono tracking-widest">{devCode}</strong>
+              Test mode — no SMS was sent. Code{" "}
+              <strong className="font-mono tracking-widest">{devCode}</strong>{" "}
+              has been filled in for you.
             </p>
           )}
 

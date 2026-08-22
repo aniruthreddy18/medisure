@@ -278,8 +278,8 @@ export type DoctorGroupByOutputType = {
   photo: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears: number | null
+  gender: $Enums.Gender | null
   languages: string[]
   bio: string | null
   regNumber: string | null
@@ -323,8 +323,8 @@ export type DoctorWhereInput = {
   photo?: Prisma.StringNullableFilter<"Doctor"> | string | null
   designation?: Prisma.StringFilter<"Doctor"> | string
   qualifications?: Prisma.StringFilter<"Doctor"> | string
-  experienceYears?: Prisma.IntFilter<"Doctor"> | number
-  gender?: Prisma.EnumGenderFilter<"Doctor"> | $Enums.Gender
+  experienceYears?: Prisma.IntNullableFilter<"Doctor"> | number | null
+  gender?: Prisma.EnumGenderNullableFilter<"Doctor"> | $Enums.Gender | null
   languages?: Prisma.StringNullableListFilter<"Doctor">
   bio?: Prisma.StringNullableFilter<"Doctor"> | string | null
   regNumber?: Prisma.StringNullableFilter<"Doctor"> | string | null
@@ -351,8 +351,8 @@ export type DoctorOrderByWithRelationInput = {
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   designation?: Prisma.SortOrder
   qualifications?: Prisma.SortOrder
-  experienceYears?: Prisma.SortOrder
-  gender?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
   languages?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   regNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -382,8 +382,8 @@ export type DoctorWhereUniqueInput = Prisma.AtLeast<{
   photo?: Prisma.StringNullableFilter<"Doctor"> | string | null
   designation?: Prisma.StringFilter<"Doctor"> | string
   qualifications?: Prisma.StringFilter<"Doctor"> | string
-  experienceYears?: Prisma.IntFilter<"Doctor"> | number
-  gender?: Prisma.EnumGenderFilter<"Doctor"> | $Enums.Gender
+  experienceYears?: Prisma.IntNullableFilter<"Doctor"> | number | null
+  gender?: Prisma.EnumGenderNullableFilter<"Doctor"> | $Enums.Gender | null
   languages?: Prisma.StringNullableListFilter<"Doctor">
   bio?: Prisma.StringNullableFilter<"Doctor"> | string | null
   regNumber?: Prisma.StringNullableFilter<"Doctor"> | string | null
@@ -410,8 +410,8 @@ export type DoctorOrderByWithAggregationInput = {
   photo?: Prisma.SortOrderInput | Prisma.SortOrder
   designation?: Prisma.SortOrder
   qualifications?: Prisma.SortOrder
-  experienceYears?: Prisma.SortOrder
-  gender?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
   languages?: Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
   regNumber?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -440,8 +440,8 @@ export type DoctorScalarWhereWithAggregatesInput = {
   photo?: Prisma.StringNullableWithAggregatesFilter<"Doctor"> | string | null
   designation?: Prisma.StringWithAggregatesFilter<"Doctor"> | string
   qualifications?: Prisma.StringWithAggregatesFilter<"Doctor"> | string
-  experienceYears?: Prisma.IntWithAggregatesFilter<"Doctor"> | number
-  gender?: Prisma.EnumGenderWithAggregatesFilter<"Doctor"> | $Enums.Gender
+  experienceYears?: Prisma.IntNullableWithAggregatesFilter<"Doctor"> | number | null
+  gender?: Prisma.EnumGenderNullableWithAggregatesFilter<"Doctor"> | $Enums.Gender | null
   languages?: Prisma.StringNullableListFilter<"Doctor">
   bio?: Prisma.StringNullableWithAggregatesFilter<"Doctor"> | string | null
   regNumber?: Prisma.StringNullableWithAggregatesFilter<"Doctor"> | string | null
@@ -462,8 +462,8 @@ export type DoctorCreateInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -490,8 +490,8 @@ export type DoctorUncheckedCreateInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -518,8 +518,8 @@ export type DoctorUpdateInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -546,8 +546,8 @@ export type DoctorUncheckedUpdateInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -574,8 +574,8 @@ export type DoctorCreateManyInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -596,8 +596,8 @@ export type DoctorUpdateManyMutationInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -618,8 +618,8 @@ export type DoctorUncheckedUpdateManyInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -733,21 +733,21 @@ export type DoctorCreatelanguagesInput = {
   set: string[]
 }
 
-export type EnumGenderFieldUpdateOperationsInput = {
-  set?: $Enums.Gender
-}
-
-export type DoctorUpdatelanguagesInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type NullableEnumGenderFieldUpdateOperationsInput = {
+  set?: $Enums.Gender | null
+}
+
+export type DoctorUpdatelanguagesInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type DoctorCreateNestedOneWithoutDepartmentsInput = {
@@ -845,8 +845,8 @@ export type DoctorCreateWithoutDepartmentsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -872,8 +872,8 @@ export type DoctorUncheckedCreateWithoutDepartmentsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -915,8 +915,8 @@ export type DoctorUpdateWithoutDepartmentsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -942,8 +942,8 @@ export type DoctorUncheckedUpdateWithoutDepartmentsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -969,8 +969,8 @@ export type DoctorCreateWithoutSchedulesInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -996,8 +996,8 @@ export type DoctorUncheckedCreateWithoutSchedulesInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1039,8 +1039,8 @@ export type DoctorUpdateWithoutSchedulesInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1066,8 +1066,8 @@ export type DoctorUncheckedUpdateWithoutSchedulesInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1093,8 +1093,8 @@ export type DoctorCreateWithoutExceptionsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1120,8 +1120,8 @@ export type DoctorUncheckedCreateWithoutExceptionsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1163,8 +1163,8 @@ export type DoctorUpdateWithoutExceptionsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1190,8 +1190,8 @@ export type DoctorUncheckedUpdateWithoutExceptionsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1217,8 +1217,8 @@ export type DoctorCreateWithoutPackagesInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1244,8 +1244,8 @@ export type DoctorUncheckedCreateWithoutPackagesInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1287,8 +1287,8 @@ export type DoctorUpdateWithoutPackagesInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1314,8 +1314,8 @@ export type DoctorUncheckedUpdateWithoutPackagesInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1341,8 +1341,8 @@ export type DoctorCreateWithoutAppointmentsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1368,8 +1368,8 @@ export type DoctorUncheckedCreateWithoutAppointmentsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1411,8 +1411,8 @@ export type DoctorUpdateWithoutAppointmentsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1438,8 +1438,8 @@ export type DoctorUncheckedUpdateWithoutAppointmentsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1465,8 +1465,8 @@ export type DoctorCreateWithoutSecondOpinsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1492,8 +1492,8 @@ export type DoctorUncheckedCreateWithoutSecondOpinsInput = {
   photo?: string | null
   designation: string
   qualifications: string
-  experienceYears: number
-  gender: $Enums.Gender
+  experienceYears?: number | null
+  gender?: $Enums.Gender | null
   languages?: Prisma.DoctorCreatelanguagesInput | string[]
   bio?: string | null
   regNumber?: string | null
@@ -1535,8 +1535,8 @@ export type DoctorUpdateWithoutSecondOpinsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1562,8 +1562,8 @@ export type DoctorUncheckedUpdateWithoutSecondOpinsInput = {
   photo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   qualifications?: Prisma.StringFieldUpdateOperationsInput | string
-  experienceYears?: Prisma.IntFieldUpdateOperationsInput | number
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   languages?: Prisma.DoctorUpdatelanguagesInput | string[]
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   regNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1783,8 +1783,18 @@ export type $DoctorPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     photo: string | null
     designation: string
     qualifications: string
-    experienceYears: number
-    gender: $Enums.Gender
+    /**
+     * Also optional: the client's doctor list carries no experience figures,
+     * and inventing one for a named physician would be fabricating a
+     * credential. The UI hides the line when it is unknown.
+     */
+    experienceYears: number | null
+    /**
+     * Optional on purpose: gender is only set when the doctor has told us.
+     * Guessing it from a name risks misgendering a real person, and the
+     * directory filter simply skips doctors whose gender is unknown.
+     */
+    gender: $Enums.Gender | null
     /**
      * Patients filter on this; matters most for home visits.
      */

@@ -28,11 +28,13 @@ export type AggregateAppointment = {
 
 export type AppointmentAvgAggregateOutputType = {
   age: number | null
+  tokenNumber: number | null
   amountPaise: number | null
 }
 
 export type AppointmentSumAggregateOutputType = {
   age: number | null
+  tokenNumber: number | null
   amountPaise: number | null
 }
 
@@ -52,6 +54,7 @@ export type AppointmentMinAggregateOutputType = {
   date: Date | null
   startTime: string | null
   endTime: string | null
+  tokenNumber: number | null
   addressLine: string | null
   area: string | null
   pincode: string | null
@@ -83,6 +86,7 @@ export type AppointmentMaxAggregateOutputType = {
   date: Date | null
   startTime: string | null
   endTime: string | null
+  tokenNumber: number | null
   addressLine: string | null
   area: string | null
   pincode: string | null
@@ -114,6 +118,7 @@ export type AppointmentCountAggregateOutputType = {
   date: number
   startTime: number
   endTime: number
+  tokenNumber: number
   addressLine: number
   area: number
   pincode: number
@@ -133,11 +138,13 @@ export type AppointmentCountAggregateOutputType = {
 
 export type AppointmentAvgAggregateInputType = {
   age?: true
+  tokenNumber?: true
   amountPaise?: true
 }
 
 export type AppointmentSumAggregateInputType = {
   age?: true
+  tokenNumber?: true
   amountPaise?: true
 }
 
@@ -157,6 +164,7 @@ export type AppointmentMinAggregateInputType = {
   date?: true
   startTime?: true
   endTime?: true
+  tokenNumber?: true
   addressLine?: true
   area?: true
   pincode?: true
@@ -188,6 +196,7 @@ export type AppointmentMaxAggregateInputType = {
   date?: true
   startTime?: true
   endTime?: true
+  tokenNumber?: true
   addressLine?: true
   area?: true
   pincode?: true
@@ -219,6 +228,7 @@ export type AppointmentCountAggregateInputType = {
   date?: true
   startTime?: true
   endTime?: true
+  tokenNumber?: true
   addressLine?: true
   area?: true
   pincode?: true
@@ -337,6 +347,7 @@ export type AppointmentGroupByOutputType = {
   date: Date
   startTime: string
   endTime: string
+  tokenNumber: number | null
   addressLine: string | null
   area: string | null
   pincode: string | null
@@ -391,6 +402,7 @@ export type AppointmentWhereInput = {
   date?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   startTime?: Prisma.StringFilter<"Appointment"> | string
   endTime?: Prisma.StringFilter<"Appointment"> | string
+  tokenNumber?: Prisma.IntNullableFilter<"Appointment"> | number | null
   addressLine?: Prisma.StringNullableFilter<"Appointment"> | string | null
   area?: Prisma.StringNullableFilter<"Appointment"> | string | null
   pincode?: Prisma.StringNullableFilter<"Appointment"> | string | null
@@ -426,6 +438,7 @@ export type AppointmentOrderByWithRelationInput = {
   date?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   addressLine?: Prisma.SortOrderInput | Prisma.SortOrder
   area?: Prisma.SortOrderInput | Prisma.SortOrder
   pincode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -465,6 +478,7 @@ export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
   date?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   startTime?: Prisma.StringFilter<"Appointment"> | string
   endTime?: Prisma.StringFilter<"Appointment"> | string
+  tokenNumber?: Prisma.IntNullableFilter<"Appointment"> | number | null
   addressLine?: Prisma.StringNullableFilter<"Appointment"> | string | null
   area?: Prisma.StringNullableFilter<"Appointment"> | string | null
   pincode?: Prisma.StringNullableFilter<"Appointment"> | string | null
@@ -499,6 +513,7 @@ export type AppointmentOrderByWithAggregationInput = {
   date?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   addressLine?: Prisma.SortOrderInput | Prisma.SortOrder
   area?: Prisma.SortOrderInput | Prisma.SortOrder
   pincode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -538,6 +553,7 @@ export type AppointmentScalarWhereWithAggregatesInput = {
   date?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string
   startTime?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   endTime?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
+  tokenNumber?: Prisma.IntNullableWithAggregatesFilter<"Appointment"> | number | null
   addressLine?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null
   area?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null
   pincode?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null
@@ -566,6 +582,7 @@ export type AppointmentCreateInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -601,6 +618,7 @@ export type AppointmentUncheckedCreateInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -630,6 +648,7 @@ export type AppointmentUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -665,6 +684,7 @@ export type AppointmentUncheckedUpdateInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -697,6 +717,7 @@ export type AppointmentCreateManyInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -725,6 +746,7 @@ export type AppointmentUpdateManyMutationInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -756,6 +778,7 @@ export type AppointmentUncheckedUpdateManyInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -797,6 +820,7 @@ export type AppointmentCountOrderByAggregateInput = {
   date?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrder
   addressLine?: Prisma.SortOrder
   area?: Prisma.SortOrder
   pincode?: Prisma.SortOrder
@@ -814,6 +838,7 @@ export type AppointmentCountOrderByAggregateInput = {
 
 export type AppointmentAvgOrderByAggregateInput = {
   age?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrder
   amountPaise?: Prisma.SortOrder
 }
 
@@ -833,6 +858,7 @@ export type AppointmentMaxOrderByAggregateInput = {
   date?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrder
   addressLine?: Prisma.SortOrder
   area?: Prisma.SortOrder
   pincode?: Prisma.SortOrder
@@ -864,6 +890,7 @@ export type AppointmentMinOrderByAggregateInput = {
   date?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrder
   addressLine?: Prisma.SortOrder
   area?: Prisma.SortOrder
   pincode?: Prisma.SortOrder
@@ -881,6 +908,7 @@ export type AppointmentMinOrderByAggregateInput = {
 
 export type AppointmentSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
+  tokenNumber?: Prisma.SortOrder
   amountPaise?: Prisma.SortOrder
 }
 
@@ -1052,6 +1080,7 @@ export type AppointmentCreateWithoutDepartmentInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1085,6 +1114,7 @@ export type AppointmentUncheckedCreateWithoutDepartmentInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1146,6 +1176,7 @@ export type AppointmentScalarWhereInput = {
   date?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   startTime?: Prisma.StringFilter<"Appointment"> | string
   endTime?: Prisma.StringFilter<"Appointment"> | string
+  tokenNumber?: Prisma.IntNullableFilter<"Appointment"> | number | null
   addressLine?: Prisma.StringNullableFilter<"Appointment"> | string | null
   area?: Prisma.StringNullableFilter<"Appointment"> | string | null
   pincode?: Prisma.StringNullableFilter<"Appointment"> | string | null
@@ -1174,6 +1205,7 @@ export type AppointmentCreateWithoutDoctorInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1207,6 +1239,7 @@ export type AppointmentUncheckedCreateWithoutDoctorInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1262,6 +1295,7 @@ export type AppointmentCreateWithoutPackageBookingInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1295,6 +1329,7 @@ export type AppointmentUncheckedCreateWithoutPackageBookingInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1350,6 +1385,7 @@ export type AppointmentCreateWithoutPaymentsInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1384,6 +1420,7 @@ export type AppointmentUncheckedCreateWithoutPaymentsInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1428,6 +1465,7 @@ export type AppointmentUpdateWithoutPaymentsInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1462,6 +1500,7 @@ export type AppointmentUncheckedUpdateWithoutPaymentsInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1492,6 +1531,7 @@ export type AppointmentCreateManyDepartmentInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1520,6 +1560,7 @@ export type AppointmentUpdateWithoutDepartmentInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1553,6 +1594,7 @@ export type AppointmentUncheckedUpdateWithoutDepartmentInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1584,6 +1626,7 @@ export type AppointmentUncheckedUpdateManyWithoutDepartmentInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1614,6 +1657,7 @@ export type AppointmentCreateManyDoctorInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1642,6 +1686,7 @@ export type AppointmentUpdateWithoutDoctorInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1675,6 +1720,7 @@ export type AppointmentUncheckedUpdateWithoutDoctorInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1706,6 +1752,7 @@ export type AppointmentUncheckedUpdateManyWithoutDoctorInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1736,6 +1783,7 @@ export type AppointmentCreateManyPackageBookingInput = {
   date: Date | string
   startTime: string
   endTime: string
+  tokenNumber?: number | null
   addressLine?: string | null
   area?: string | null
   pincode?: string | null
@@ -1764,6 +1812,7 @@ export type AppointmentUpdateWithoutPackageBookingInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1797,6 +1846,7 @@ export type AppointmentUncheckedUpdateWithoutPackageBookingInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1828,6 +1878,7 @@ export type AppointmentUncheckedUpdateManyWithoutPackageBookingInput = {
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   startTime?: Prisma.StringFieldUpdateOperationsInput | string
   endTime?: Prisma.StringFieldUpdateOperationsInput | string
+  tokenNumber?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   addressLine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   area?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1890,6 +1941,7 @@ export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   date?: boolean
   startTime?: boolean
   endTime?: boolean
+  tokenNumber?: boolean
   addressLine?: boolean
   area?: boolean
   pincode?: boolean
@@ -1926,6 +1978,7 @@ export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   date?: boolean
   startTime?: boolean
   endTime?: boolean
+  tokenNumber?: boolean
   addressLine?: boolean
   area?: boolean
   pincode?: boolean
@@ -1960,6 +2013,7 @@ export type AppointmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   date?: boolean
   startTime?: boolean
   endTime?: boolean
+  tokenNumber?: boolean
   addressLine?: boolean
   area?: boolean
   pincode?: boolean
@@ -1994,6 +2048,7 @@ export type AppointmentSelectScalar = {
   date?: boolean
   startTime?: boolean
   endTime?: boolean
+  tokenNumber?: boolean
   addressLine?: boolean
   area?: boolean
   pincode?: boolean
@@ -2009,7 +2064,7 @@ export type AppointmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ref" | "serviceType" | "doctorId" | "departmentId" | "packageBookingId" | "patientName" | "phone" | "email" | "age" | "gender" | "notes" | "date" | "startTime" | "endTime" | "addressLine" | "area" | "pincode" | "landmark" | "status" | "amountPaise" | "holdExpiresAt" | "slotLock" | "cancelledBy" | "cancelReason" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
+export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ref" | "serviceType" | "doctorId" | "departmentId" | "packageBookingId" | "patientName" | "phone" | "email" | "age" | "gender" | "notes" | "date" | "startTime" | "endTime" | "tokenNumber" | "addressLine" | "area" | "pincode" | "landmark" | "status" | "amountPaise" | "holdExpiresAt" | "slotLock" | "cancelledBy" | "cancelReason" | "cancelledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
 export type AppointmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   doctor?: boolean | Prisma.DoctorDefaultArgs<ExtArgs>
   department?: boolean | Prisma.Appointment$departmentArgs<ExtArgs>
@@ -2055,6 +2110,11 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     date: Date
     startTime: string
     endTime: string
+    /**
+     * Position in the queue for this window, 1..capacity. Printed on the
+     * confirmation so the patient knows roughly when they will be called.
+     */
+    tokenNumber: number | null
     addressLine: string | null
     area: string | null
     pincode: string | null
@@ -2069,12 +2129,16 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     /**
      * THE double-booking guard.
      * 
-     * Format: "<doctorId>|<yyyy-mm-dd>|<HH:mm>". Unique across the table,
-     * but NULLABLE — and Postgres permits unlimited NULLs in a unique index.
-     * Active appointments carry the lock; cancelling or expiring one sets it
-     * to NULL, which frees the slot for rebooking while the row survives for
-     * reporting. Two concurrent bookings for the same slot therefore collide
-     * on a database constraint, not on application logic that can race.
+     * Format: "<doctorId>|<yyyy-mm-dd>|<HH:mm>#<token>". Unique across the
+     * table, but NULLABLE — and Postgres permits unlimited NULLs in a unique
+     * index. Active appointments carry the lock; cancelling or expiring one
+     * sets it to NULL, which frees that token while the row survives for
+     * reporting.
+     * 
+     * Including the token number is what makes a capacity of 10 safe: two
+     * patients racing for the same window take different tokens and both
+     * succeed, while two racing for the same *token* collide on the database
+     * constraint and the loser is retried onto the next free one.
      */
     slotLock: string | null
     cancelledBy: string | null
@@ -2524,6 +2588,7 @@ export interface AppointmentFieldRefs {
   readonly date: Prisma.FieldRef<"Appointment", 'DateTime'>
   readonly startTime: Prisma.FieldRef<"Appointment", 'String'>
   readonly endTime: Prisma.FieldRef<"Appointment", 'String'>
+  readonly tokenNumber: Prisma.FieldRef<"Appointment", 'Int'>
   readonly addressLine: Prisma.FieldRef<"Appointment", 'String'>
   readonly area: Prisma.FieldRef<"Appointment", 'String'>
   readonly pincode: Prisma.FieldRef<"Appointment", 'String'>

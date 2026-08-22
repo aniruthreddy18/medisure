@@ -3,6 +3,8 @@ import { z } from "zod";
 import { db } from "@medisure/backend/db";
 import { createHold, createPackagePurchase, SlotUnavailableError } from "@medisure/backend/booking";
 import { consumeVerification, normalisePhone, OtpError } from "@medisure/backend/otp";
+import { createPaymentOrder } from "@medisure/backend/payments";
+import { db as _db } from "@medisure/backend/db";
 import { site } from "@medisure/backend/site";
 
 /**
@@ -160,6 +162,12 @@ export async function POST(request: Request) {
         landmark: data.landmark ?? null,
       });
 
+      const order = await createPaymentOrder(
+        { kind: "package", id: booking.id },
+        booking.amountPaise,
+        { packageRef: booking.ref, patientName: data.patientName, phone },
+      );
+
       return NextResponse.json(
         {
           ref: appointment.ref,
@@ -169,6 +177,7 @@ export async function POST(request: Request) {
           requiresPayment: booking.amountPaise > 0,
           sessionsTotal: booking.sessionsTotal,
           holdMinutes: site.booking.holdMinutes,
+          payment: order,
         },
         { status: 201 },
       );
@@ -233,14 +242,44 @@ export async function POST(request: Request) {
       amountPaise,
     });
 
+    // Zero-cost bookings (a session inside an already-paid package) skip the
+    // gateway entirely and are confirmed on the spot.
+    if (appointment.amountPaise === 0) {
+      await _db.appointment.update({
+        where: { id: appointment.id },
+        data: { status: "CONFIRMED", holdExpiresAt: null },
+      });
+      return NextResponse.json(
+        {
+          ref: appointment.ref,
+          tokenNumber: appointment.tokenNumber,
+          amountPaise: 0,
+          requiresPayment: false,
+        },
+        { status: 201 },
+      );
+    }
+
+    const order = await createPaymentOrder(
+      { kind: "appointment", id: appointment.id },
+      appointment.amountPaise,
+      {
+        ref: appointment.ref,
+        doctorId: doctor.id,
+        patientName: data.patientName,
+        phone,
+      },
+    );
+
     return NextResponse.json(
       {
         ref: appointment.ref,
+        tokenNumber: appointment.tokenNumber,
         holdExpiresAt: appointment.holdExpiresAt,
         amountPaise: appointment.amountPaise,
-        // Zero-cost bookings (package sessions) skip payment entirely.
-        requiresPayment: appointment.amountPaise > 0,
+        requiresPayment: true,
         holdMinutes: site.booking.holdMinutes,
+        payment: order,
       },
       { status: 201 },
     );

@@ -336,6 +336,9 @@
     "transpilePackages": [
       "@medisure/backend"
     ],
+    "serverExternalPackages": [
+      "pdfkit"
+    ],
     "repoRoot": "/Users/aniruthreddy/medisure",
     "distDirRoot": ".next"
   },

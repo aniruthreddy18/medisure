@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Clock, MapPin, Phone, CalendarDays } from "lucide-react";
+import { CheckCircle2, Clock, MapPin, Phone, CalendarDays, Download } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { db } from "@medisure/backend/db";
 import { site } from "@medisure/backend/site";
@@ -23,12 +23,18 @@ export default async function BookingSuccessPage({
   const { ref } = await params;
   const appointment = await db.appointment.findUnique({
     where: { ref },
-    include: { doctor: true, department: true },
+    include: {
+      doctor: true,
+      department: true,
+      payments: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
   });
 
   if (!appointment) notFound();
 
   const awaitingPayment = appointment.status === "HOLD" && appointment.amountPaise > 0;
+  const payment = appointment.payments[0] ?? null;
+  const paid = payment?.status === "PAID";
 
   return (
     <Container className="max-w-2xl py-14 lg:py-20">
@@ -59,7 +65,26 @@ export default async function BookingSuccessPage({
           </div>
         </div>
 
-        <div className="mt-7 rounded-xl bg-brand-50 p-5">
+        {appointment.serviceType === "OP" && appointment.tokenNumber !== null && (
+          <div className="mt-7 flex items-center gap-5 rounded-xl border border-brand-200 bg-brand-50 p-5">
+            <div className="grid size-20 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
+              <span className="font-display text-3xl font-bold tabular-nums">
+                {appointment.tokenNumber}
+              </span>
+            </div>
+            <div>
+              <p className="font-display text-lg font-bold text-ink-900">
+                Your token number
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-ink-600">
+                Patients in this hour are seen in token order. Please arrive at
+                the start of your window and wait to be called.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 rounded-xl bg-ink-50 p-5">
           <p className="text-sm text-ink-600">Booking reference</p>
           <p className="mt-1 font-display text-2xl font-bold tracking-wide text-brand-900">
             {appointment.ref}
@@ -71,7 +96,15 @@ export default async function BookingSuccessPage({
 
         <dl className="mt-7 space-y-4">
           <Row icon={CalendarDays} label="When">
-            {formatDateLabel(toDateKey(appointment.date))} at {formatTimeLabel(appointment.startTime)}
+            {formatDateLabel(toDateKey(appointment.date))},{" "}
+            {appointment.serviceType === "OP" ? (
+              <>
+                {formatTimeLabel(appointment.startTime)} –{" "}
+                {formatTimeLabel(appointment.endTime)}
+              </>
+            ) : (
+              formatTimeLabel(appointment.startTime)
+            )}
           </Row>
           <Row icon={CheckCircle2} label="Doctor">
             {appointment.doctor.name}
@@ -97,7 +130,48 @@ export default async function BookingSuccessPage({
           )}
         </dl>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        {paid && payment && (
+          <section
+            aria-labelledby="receipt"
+            className="mt-8 overflow-hidden rounded-xl border border-ink-200 print:border-black"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-ink-200 bg-ink-50 px-5 py-3">
+              <h2 id="receipt" className="font-display font-semibold text-ink-900">
+                Payment receipt
+              </h2>
+              <span className="rounded-full bg-success-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[--color-success]">
+                Paid
+              </span>
+            </div>
+            <dl className="divide-y divide-ink-100 px-5">
+              <ReceiptRow label="Amount paid" value={`₹${(payment.amountPaise / 100).toLocaleString("en-IN")}`} />
+              <ReceiptRow label="Payment ID" value={payment.paymentId ?? "—"} mono />
+              <ReceiptRow label="Order ID" value={payment.orderId} mono />
+              {payment.method && <ReceiptRow label="Method" value={payment.method.toUpperCase()} />}
+              <ReceiptRow
+                label="Paid on"
+                value={payment.updatedAt.toLocaleString("en-IN", {
+                  timeZone: "Asia/Kolkata",
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              />
+            </dl>
+
+            <div className="border-t border-ink-200 px-5 py-4">
+              <a
+                href={`/api/receipt/${appointment.ref}`}
+                download={`MediSure-Receipt-${appointment.ref}.pdf`}
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+              >
+                <Download className="size-4" aria-hidden="true" />
+                Download receipt (PDF)
+              </a>
+            </div>
+          </section>
+        )}
+
+        <div className="mt-8 flex flex-wrap gap-3 print:hidden">
           <Link
             href={`/manage/${appointment.ref}`}
             className="inline-flex min-h-12 items-center rounded-xl border border-brand-700 px-6 font-semibold text-brand-800 hover:bg-brand-50"
@@ -119,6 +193,25 @@ export default async function BookingSuccessPage({
         scans or reports relating to this problem.
       </p>
     </Container>
+  );
+}
+
+function ReceiptRow({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex justify-between gap-6 py-3 text-sm">
+      <dt className="text-ink-500">{label}</dt>
+      <dd className={mono ? "text-right font-mono text-ink-900" : "text-right font-medium text-ink-900"}>
+        {value}
+      </dd>
+    </div>
   );
 }
 

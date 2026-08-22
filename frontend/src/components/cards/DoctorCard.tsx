@@ -11,7 +11,7 @@ export type DoctorCardData = {
   photo: string | null;
   designation: string;
   qualifications: string;
-  experienceYears: number;
+  experienceYears: number | null;
   languages: string[];
   offersHomePhysio: boolean;
   opFeePaise: number;
@@ -77,9 +77,11 @@ export function DoctorCard({
           {dept && (
             <p className="mt-0.5 text-sm font-medium text-brand-600">{dept.name}</p>
           )}
-          <p className="mt-1.5 text-sm font-semibold text-ink-800">
-            {doctor.experienceYears}+ years experience
-          </p>
+          {doctor.experienceYears !== null && (
+            <p className="mt-1.5 text-sm font-semibold text-ink-800">
+              {doctor.experienceYears}+ years experience
+            </p>
+          )}
           <p className="mt-0.5 line-clamp-1 text-sm text-ink-500" title={doctor.qualifications}>
             {doctor.qualifications}
           </p>
@@ -111,20 +113,24 @@ export function DoctorCard({
           </p>
         )}
 
-        <div className="grid grid-cols-2 gap-2">
+        {/* One action: book. Calling stays reachable as a compact icon —
+            many patients here still prefer the phone, so removing it entirely
+            would cost bookings, but it no longer competes with the CTA. */}
+        <div className="flex gap-2">
           <Link
             href={`/book/op?doctor=${doctor.slug}`}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-accent-500 px-3 text-sm font-semibold text-white transition-colors hover:bg-accent-600"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
           >
             <CalendarPlus className="size-4" aria-hidden="true" />
-            Book
+            Book Appointment
           </Link>
           <a
             href={`tel:${site.phone.booking}`}
-            className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-brand-700 px-3 text-sm font-semibold text-brand-800 transition-colors hover:bg-brand-50"
+            aria-label={`Call to book with ${doctor.name}`}
+            title="Call to book"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-ink-200 text-brand-700 transition-colors hover:border-brand-400 hover:bg-brand-50"
           >
             <Phone className="size-4" aria-hidden="true" />
-            Call Now
           </a>
         </div>
       </div>
