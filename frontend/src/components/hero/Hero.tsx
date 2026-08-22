@@ -137,14 +137,15 @@ export function Hero() {
         )}
 
         {/*
-          Mobile veil. Lighter across the photo at the top so it is actually
-          visible, then heavier further down where the body copy and buttons
-          sit — those need the contrast, the badge and headline are large
-          enough to hold their own.
+          Mobile veil. The photo was barely visible at 0.82-0.94 — turned
+          down across the board so it actually reads as a photograph behind
+          the text rather than a faint ghost. Still heavier toward the
+          bottom, where the body paragraph (the smallest, lowest-contrast
+          text on the page) needs the most help.
         */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.94)_0%,rgba(255,255,255,0.90)_55%,rgba(255,255,255,0.82)_100%)] sm:hidden"
+          className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.35)_0%,rgba(255,255,255,0.5)_45%,rgba(255,255,255,0.68)_100%)] sm:hidden"
         />
 
         {/*
