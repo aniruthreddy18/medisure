@@ -21,11 +21,24 @@ const serif = Source_Serif_4({
   display: "swap",
 });
 
+/**
+ * `new URL()` throws on anything that isn't a valid absolute URL — missing,
+ * empty, or just a bare domain without "https://" all fail the same way, and
+ * any of them will take the entire production build down since this module
+ * evaluates at build time. metadataBase is only used to resolve relative
+ * URLs for Open Graph/Twitter images — worth falling back safely rather than
+ * failing the build over what is ultimately a cosmetic default.
+ */
+function siteUrl(): URL {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
+  } catch {
+    return new URL("http://localhost:3000");
+  }
+}
+
 export const metadata: Metadata = {
-  // `||`, not `??` — an env var set to an empty string in the Vercel
-  // dashboard (as opposed to left unset) still needs to fall through, or
-  // `new URL("")` throws and takes down the entire build.
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: siteUrl(),
   title: {
     default: `${site.name} — ${site.tagline}`,
     template: `%s | ${site.name}`,
