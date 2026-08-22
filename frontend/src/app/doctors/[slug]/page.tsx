@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Phone, CalendarPlus, Languages, HomeIcon, BadgeCheck, Clock } from "lucide-react";
+import { CalendarPlus, Languages, HomeIcon, BadgeCheck, Clock } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { getDoctorBySlug } from "@medisure/backend/queries";
 import { site } from "@medisure/backend/site";
@@ -135,13 +135,6 @@ export default async function DoctorProfilePage({
                     Book Home Visit
                   </Link>
                 )}
-                <a
-                  href={`tel:${site.phone.booking}`}
-                  className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-border bg-white px-6 font-semibold text-ink-700 transition-colors hover:bg-ink-50"
-                >
-                  <Phone className="size-4" aria-hidden="true" />
-                  Call Now
-                </a>
               </div>
             </div>
           </div>

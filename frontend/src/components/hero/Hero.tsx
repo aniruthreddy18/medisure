@@ -38,7 +38,9 @@ function heroImageExists(): boolean {
 
 const actions = [
   { href: "/book/op", icon: CalendarDays, title: "OP Booking", featured: true },
-  { href: "/home-physiotherapy", icon: HomeIcon, title: "Home Physio", status: "Available" },
+  // No href: this tile no longer links anywhere, per the client — just a
+  // status indicator that the service exists and is available.
+  { href: undefined, icon: HomeIcon, title: "Home Physio", status: "Available" },
   { href: "/second-opinion", icon: MessageSquareHeart, title: "Expert Opinion" },
 ];
 
@@ -177,29 +179,27 @@ export function Hero() {
         <ul className="grid gap-3 sm:grid-cols-3">
           {actions.map((action) => {
             const Icon = action.icon;
-            return (
-              <li key={action.href}>
-                <Link
-                  href={action.href}
-                  className={
-                    action.featured
-                      ? "group flex items-center gap-3 rounded-xl border border-brand-600 bg-brand-600 px-5 py-4 text-white shadow-sm transition-colors hover:bg-brand-700"
-                      : "group flex items-center gap-3 rounded-xl border border-ink-200 bg-white/90 px-5 py-4 text-ink-900 shadow-sm backdrop-blur transition-colors hover:border-brand-400 hover:bg-white"
-                  }
-                >
-                  <Icon
-                    className={action.featured ? "size-5 shrink-0" : "size-5 shrink-0 text-brand-600"}
-                    aria-hidden="true"
-                  />
-                  <span className="font-display text-base font-semibold">{action.title}</span>
+            const className = action.featured
+              ? "group flex items-center gap-3 rounded-xl border border-brand-600 bg-brand-600 px-5 py-4 text-white shadow-sm transition-colors hover:bg-brand-700"
+              : "group flex items-center gap-3 rounded-xl border border-ink-200 bg-white/90 px-5 py-4 text-ink-900 shadow-sm backdrop-blur transition-colors hover:border-brand-400 hover:bg-white";
 
-                  {action.status && (
-                    <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
-                      <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-500" />
-                      {action.status}
-                    </span>
-                  )}
+            const content = (
+              <>
+                <Icon
+                  className={action.featured ? "size-5 shrink-0" : "size-5 shrink-0 text-brand-600"}
+                  aria-hidden="true"
+                />
+                <span className="font-display text-base font-semibold">{action.title}</span>
 
+                {action.status && (
+                  <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+                    <span aria-hidden="true" className="size-1.5 rounded-full bg-emerald-500" />
+                    {action.status}
+                  </span>
+                )}
+
+                {/* No arrow when there's nowhere to go. */}
+                {action.href && (
                   <ArrowRight
                     className={
                       action.status
@@ -208,7 +208,19 @@ export function Hero() {
                     }
                     aria-hidden="true"
                   />
-                </Link>
+                )}
+              </>
+            );
+
+            return (
+              <li key={action.title}>
+                {action.href ? (
+                  <Link href={action.href} className={className}>
+                    {content}
+                  </Link>
+                ) : (
+                  <div className={className.replace("group ", "")}>{content}</div>
+                )}
               </li>
             );
           })}

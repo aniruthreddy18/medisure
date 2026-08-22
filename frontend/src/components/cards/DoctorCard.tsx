@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, CalendarPlus, Languages, HomeIcon } from "lucide-react";
-import { site } from "@medisure/backend/site";
+import { CalendarPlus, Languages, HomeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DoctorCardData = {
@@ -113,26 +112,13 @@ export function DoctorCard({
           </p>
         )}
 
-        {/* One action: book. Calling stays reachable as a compact icon —
-            many patients here still prefer the phone, so removing it entirely
-            would cost bookings, but it no longer competes with the CTA. */}
-        <div className="flex gap-2">
-          <Link
-            href={`/book/op?doctor=${doctor.slug}`}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
-          >
-            <CalendarPlus className="size-4" aria-hidden="true" />
-            Book Appointment
-          </Link>
-          <a
-            href={`tel:${site.phone.booking}`}
-            aria-label={`Call to book with ${doctor.name}`}
-            title="Call to book"
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-ink-200 text-brand-700 transition-colors hover:border-brand-400 hover:bg-brand-50"
-          >
-            <Phone className="size-4" aria-hidden="true" />
-          </a>
-        </div>
+        <Link
+          href={`/book/op?doctor=${doctor.slug}`}
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+        >
+          <CalendarPlus className="size-4" aria-hidden="true" />
+          Book Appointment
+        </Link>
       </div>
     </article>
   );

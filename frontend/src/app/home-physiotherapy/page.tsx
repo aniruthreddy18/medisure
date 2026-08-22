@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HomeIcon, Clock, UserCheck, ShieldCheck, ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { PackageCard } from "@/components/cards/PackageCard";
 import { DoctorCard } from "@/components/cards/DoctorCard";
-import { getPackages, getHomePhysioDoctors, getFaqs } from "@medisure/backend/queries";
+import { getHomePhysioDoctors, getFaqs } from "@medisure/backend/queries";
 import { site } from "@medisure/backend/site";
 
 // Content comes from the database and is edited by hospital staff, so this
@@ -16,24 +15,21 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: `Home Physiotherapy in ${site.address.city}`,
   description:
-    "Qualified physiotherapists treat you at home — single visits or session packages for post-surgery, stroke, sports injury, back pain and geriatric care.",
+    "Qualified physiotherapists treat you at home for post-surgery, stroke, sports injury, back pain and geriatric care.",
 };
 
 const steps = [
   { icon: HomeIcon, title: "Tell us where you are", text: "Enter your address and the condition you need help with." },
   { icon: UserCheck, title: "Pick your physiotherapist", text: "Choose from our home-visit team and see their availability." },
-  { icon: Clock, title: "Book your first visit", text: "Pay once for the package, then schedule sessions as you go." },
-  { icon: ShieldCheck, title: "Recover at home", text: "The same physiotherapist sees you through the whole programme." },
+  { icon: Clock, title: "Book your first visit", text: "Book directly with your chosen physiotherapist for a home visit." },
+  { icon: ShieldCheck, title: "Recover at home", text: "The same physiotherapist sees you through your recovery." },
 ];
 
 export default async function HomePhysiotherapyPage() {
-  const [packages, physios, faqs] = await Promise.all([
-    getPackages(),
+  const [physios, faqs] = await Promise.all([
     getHomePhysioDoctors(),
     getFaqs("home-physio"),
   ]);
-
-  const programmes = packages.filter((p) => p.conditionTag);
 
   return (
     <>
@@ -81,29 +77,6 @@ export default async function HomePhysiotherapyPage() {
           </ol>
         </Container>
       </section>
-
-      {/* Condition programmes */}
-      {programmes.length > 0 && (
-        <section className="bg-white py-14 lg:py-20" aria-labelledby="programmes">
-          <Container>
-            <div className="max-w-2xl">
-              <h2 id="programmes" className="font-display text-2xl font-bold text-brand-950 sm:text-3xl">
-                Condition-specific programmes
-              </h2>
-              <p className="mt-3 text-ink-600">
-                Structured programmes built around a particular recovery, with a
-                physiotherapist trained in that area.
-              </p>
-            </div>
-
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {programmes.map((pkg) => (
-                <PackageCard key={pkg.id} pkg={pkg} />
-              ))}
-            </div>
-          </Container>
-        </section>
-      )}
 
       {/* Physios */}
       {physios.length > 0 && (
