@@ -124,11 +124,17 @@ export function Hero() {
               still comfortably inside the band. Only the sofa and floor at the
               bottom are lost.
 
-              Mobile favours the right of the frame so the family shows rather
-              than an empty stretch of wall. brightness-110 lifts a slightly
-              flat photo sitting under a white veil.
+              Mobile is a portrait container against a landscape photo, so
+              object-cover fits the full HEIGHT and crops the WIDTH — the
+              visible band is a fixed ~41% slice of the image, wherever it's
+              anchored. The wall sign sits in roughly the rightmost 15% of the
+              frame, which the old 72% anchor didn't reach (its band ended at
+              ~84%). Anchoring fully right guarantees the whole sign is in
+              view; it crops out the doctor and the girl, who sit further
+              left, but keeps the man, the woman and the sign. brightness-110
+              lifts a slightly flat photo sitting under a white veil.
             */
-            className="object-cover object-[72%_60%] brightness-110 sm:object-[right_top]"
+            className="object-cover object-right brightness-110 sm:object-[right_top]"
           />
         ) : (
           <div aria-hidden="true" className="absolute inset-0 bg-ink-100">
