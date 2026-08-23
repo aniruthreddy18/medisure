@@ -37,9 +37,12 @@ export const site = {
     emergency: "+919908256622", // shown in the header at all times
     reception: "+919908256622", // header "Call" button, second-opinion callbacks
   },
+  // One inbox, same reasoning as the phone numbers above: kept as separate
+  // fields so a dedicated bookings address can be split out later without
+  // touching the pages that read them.
   email: {
-    general: "info@medisure.example", // TODO: client
-    bookings: "appointments@medisure.example", // TODO: client
+    general: "medisure1@gmail.com",
+    bookings: "medisure1@gmail.com",
   },
 
   /** Displayed on the contact page and in structured data. */
