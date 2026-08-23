@@ -102,11 +102,37 @@ export async function getDoctors(filters: DoctorFilters = {}) {
   // Prisma can't sort a to-many relation by a field on the far side, so this
   // sorts in JS instead; the `order`/`experienceYears` DB ordering above
   // becomes the tiebreaker within each department.
-  return doctors.sort((a, b) => {
+  const sorted = doctors.sort((a, b) => {
     const deptOrder = (doc: (typeof doctors)[number]) =>
       Math.min(...doc.departments.map((d) => d.department.order), Infinity);
     return deptOrder(a) - deptOrder(b);
   });
+
+  applyDisplaySwaps(sorted);
+  return sorted;
+}
+
+/**
+ * Client-requested display swap, applied after sorting.
+ *
+ * These two sit in different departments (Orthopaedics and Physiotherapy),
+ * so their positions cannot be expressed through department order or the
+ * per-doctor `order` column — either would move both departments wholesale
+ * rather than the two people. Hence a positional swap on the finished list.
+ *
+ * Deliberately a no-op unless BOTH are present, so a filtered view (say,
+ * Orthopaedics only) is left untouched rather than half-swapped.
+ */
+const DISPLAY_SWAPS: readonly (readonly [string, string])[] = [
+  ["dr-t-yeseswi", "dr-m-dhanunjaya"],
+];
+
+function applyDisplaySwaps(list: { slug: string }[]): void {
+  for (const [a, b] of DISPLAY_SWAPS) {
+    const i = list.findIndex((d) => d.slug === a);
+    const j = list.findIndex((d) => d.slug === b);
+    if (i !== -1 && j !== -1) [list[i], list[j]] = [list[j], list[i]];
+  }
 }
 
 export function getDoctorBySlug(slug: string) {

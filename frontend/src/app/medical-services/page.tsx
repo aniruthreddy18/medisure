@@ -48,15 +48,15 @@ const services: {
     cta: "Book a consultation",
   },
   {
+    icon: Activity,
+    title: "Surgery & Procedures",
+    body: "Laparoscopic and open surgery, joint replacement, arthroscopy and day-care procedures.",
+  },
+  {
     icon: HomeIcon,
     title: "Home Physiotherapy",
     body: "A physiotherapist treats you at home — single visits or session packages for longer recoveries.",
     available: true,
-  },
-  {
-    icon: Activity,
-    title: "Surgery & Procedures",
-    body: "Laparoscopic and open surgery, joint replacement, arthroscopy and day-care procedures.",
   },
   {
     icon: ClipboardCheck,
@@ -161,8 +161,8 @@ export default async function MedicalServicesPage() {
             <div>
               <h2 className="font-display text-xl font-bold">Emergency &amp; ambulance</h2>
               <p className="mt-1 text-white/75">
-                Available {site.hours.emergency}. Do not book online in an
-                emergency — call us.
+                Available {site.hours.emergency}.
+                Do not book online in an emergency — call us.
               </p>
             </div>
           </div>

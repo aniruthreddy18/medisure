@@ -7,10 +7,14 @@ import { Container } from "@/components/ui/Container";
 const columns = [
   {
     title: "Specialities",
+    // Same six, in the same order, as the homepage core-speciality grid.
     links: [
-      { label: "Physiotherapy", href: "/specialities/physiotherapy" },
-      { label: "Orthopaedics", href: "/specialities/orthopaedics" },
+      { label: "General Medicine", href: "/specialities/general-medicine" },
       { label: "General Surgery", href: "/specialities/general-surgery" },
+      { label: "Orthopaedics", href: "/specialities/orthopaedics" },
+      { label: "Physiotherapy", href: "/specialities/physiotherapy" },
+      { label: "Gynaecology & Obstetrics", href: "/specialities/gynaecology-obstetrics" },
+      { label: "Paediatrics", href: "/specialities/paediatrics" },
       { label: "All Specialities", href: "/specialities" },
     ],
   },
