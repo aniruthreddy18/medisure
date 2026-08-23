@@ -41,8 +41,8 @@ export const site = {
   // fields so a dedicated bookings address can be split out later without
   // touching the pages that read them.
   email: {
-    general: "medisure1@gmail.com",
-    bookings: "medisure1@gmail.com",
+    general: "medisurehospital1@gmail.com",
+    bookings: "medisurehospital1@gmail.com",
   },
 
   /** Displayed on the contact page and in structured data. */
