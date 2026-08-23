@@ -5,7 +5,6 @@ import {
   HomeIcon,
   Activity,
   ScanLine,
-  Syringe,
   Ambulance,
   ArrowRight,
   ClipboardCheck,
@@ -24,13 +23,15 @@ export const metadata: Metadata = {
 
 /**
  * Each card is either a link somewhere useful (`href` + `cta`) or a plain
- * status card (`available: true`, no click target at all). Home Physio,
- * Diagnostics and Rehab were previously links, but Diagnostics pointed at
+ * status card (`available: true`, no click target at all).
+ *
+ * Home Physio and Diagnostics were previously links. Diagnostics pointed at
  * `/specialities/diagnostics`, a department slug that doesn't exist — a dead
- * link — and the client asked for the other two to stop redirecting as well,
- * so all three became "Available" status cards instead. Surgery & Procedures
- * keeps its info but drops the "Explore surgery" CTA per the same request,
- * without a status badge since none was asked for.
+ * link — and the client asked for Home Physio to stop redirecting as well, so
+ * both became "Available" status cards. Surgery & Procedures keeps its copy
+ * but drops its CTA per the same request, with no status badge since none was
+ * asked for. Rehabilitation is no longer its own card; it is folded into the
+ * Home Physiotherapy one.
  */
 const services: {
   icon: typeof Stethoscope;
@@ -54,7 +55,7 @@ const services: {
   },
   {
     icon: HomeIcon,
-    title: "Home Physiotherapy",
+    title: "Home Physiotherapy & Rehabilitation",
     body: "A physiotherapist treats you at home — single visits or session packages for longer recoveries.",
     available: true,
   },
@@ -69,12 +70,6 @@ const services: {
     icon: ScanLine,
     title: "Diagnostics & Imaging",
     body: "X-ray, ultrasound and laboratory services on site, so results reach your doctor the same day.",
-    available: true,
-  },
-  {
-    icon: Syringe,
-    title: "Rehabilitation",
-    body: "Structured recovery programmes after surgery, stroke or injury, run with your treating doctor.",
     available: true,
   },
 ];
