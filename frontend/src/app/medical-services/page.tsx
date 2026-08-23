@@ -155,8 +155,11 @@ export default async function MedicalServicesPage() {
             </span>
             <div>
               <h2 className="font-display text-xl font-bold">Emergency &amp; ambulance</h2>
-              <p className="mt-1 text-white/75">
-                Available {site.hours.emergency}.
+              {/* Two elements, not one paragraph with a line break in the
+                  source: JSX collapses that newline to a space, so the
+                  warning ran on after the opening hours. */}
+              <p className="mt-1 text-white/75">Available {site.hours.emergency}.</p>
+              <p className="mt-1 font-medium text-white">
                 Do not book online in an emergency — call us.
               </p>
             </div>
