@@ -23,11 +23,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { devCode } = await sendOtp(parsed.data.phone);
-    return NextResponse.json({ sent: true, devCode });
+    const { devCode, resendAfterSeconds } = await sendOtp(parsed.data.phone);
+    return NextResponse.json({ sent: true, devCode, resendAfterSeconds });
   } catch (error) {
     if (error instanceof OtpError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
+      // retryAfterSeconds drives the UI countdown on throttled sends.
+      return NextResponse.json(
+        { error: error.message, retryAfterSeconds: error.retryAfterSeconds },
+        { status: error.status },
+      );
     }
     console.error("OTP send failed", error);
     return NextResponse.json({ error: "Could not send the code. Please try again." }, { status: 500 });

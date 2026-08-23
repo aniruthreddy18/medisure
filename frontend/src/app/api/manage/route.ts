@@ -85,11 +85,19 @@ export async function POST(request: Request) {
 
   if (data.action === "request-code") {
     try {
-      const { devCode } = await sendOtp(phone);
-      return NextResponse.json({ sent: true, maskedPhone: maskPhone(phone), devCode });
+      const { devCode, resendAfterSeconds } = await sendOtp(phone);
+      return NextResponse.json({
+        sent: true,
+        maskedPhone: maskPhone(phone),
+        devCode,
+        resendAfterSeconds,
+      });
     } catch (error) {
       if (error instanceof OtpError) {
-        return NextResponse.json({ error: error.message }, { status: error.status });
+        return NextResponse.json(
+          { error: error.message, retryAfterSeconds: error.retryAfterSeconds },
+          { status: error.status },
+        );
       }
       throw error;
     }
