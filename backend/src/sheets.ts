@@ -38,6 +38,56 @@ const HEADERS = [
   "Service", "Amount (₹)", "Status",
 ];
 
+const TAB = "Bookings";
+/** 0-based index of "Date" in HEADERS — the column the sheet is kept sorted on. */
+const DATE_COLUMN_INDEX = 7;
+
+/** sortRange needs the numeric sheet id, not the tab name. Resolved once. */
+let cachedSheetId: number | null = null;
+
+type SheetsApi = ReturnType<typeof google.sheets>;
+
+async function resolveSheetId(sheets: SheetsApi): Promise<number> {
+  if (cachedSheetId !== null) return cachedSheetId;
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: SPREADSHEET_ID! });
+  const tab = (meta.data.sheets ?? []).find((s) => s.properties?.title === TAB);
+  const id = tab?.properties?.sheetId;
+  if (id === undefined || id === null) throw new Error(`No "${TAB}" tab in the spreadsheet.`);
+  cachedSheetId = id;
+  return id;
+}
+
+/**
+ * Order the sheet by appointment date instead of the order payments happened
+ * to confirm in, which is what the front desk actually reads down.
+ *
+ * Dates are written as YYYY-MM-DD, so a plain text sort is already
+ * chronological — no date parsing needed on the Sheets side. Rows sharing a
+ * date keep their existing relative order, so same-day bookings stay in the
+ * sequence they came in.
+ */
+async function sortByDate(sheets: SheetsApi): Promise<void> {
+  const sheetId = await resolveSheetId(sheets);
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: SPREADSHEET_ID!,
+    requestBody: {
+      requests: [
+        {
+          sortRange: {
+            range: {
+              sheetId,
+              startRowIndex: 1, // leave the header row alone
+              startColumnIndex: 0,
+              endColumnIndex: HEADERS.length,
+            },
+            sortSpecs: [{ dimensionIndex: DATE_COLUMN_INDEX, sortOrder: "ASCENDING" }],
+          },
+        },
+      ],
+    },
+  });
+}
+
 function toRow(b: BookingRow): (string | number)[] {
   return [
     b.bookedAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
@@ -144,10 +194,21 @@ export async function appendBooking(booking: BookingRow): Promise<{ ok: boolean;
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID!,
-      range: "Bookings!A:M",
+      range: `${TAB}!A:M`,
       valueInputOption: "USER_ENTERED",
       requestBody: { values: [row] },
     });
+
+    // Separately caught: the row is already safely in the sheet by now, so a
+    // failed re-sort must not report the append as failed.
+    try {
+      await sortByDate(sheets);
+    } catch (error) {
+      console.warn(
+        "[sheets] row appended but re-sort failed:",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
 
     return { ok: true };
   } catch (error) {

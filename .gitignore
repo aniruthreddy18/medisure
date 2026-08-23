@@ -53,3 +53,6 @@ next-env.d.ts
 # Google service-account key — a secret, never commit
 google-credentials.json
 *-credentials.json
+
+# Sheet exports contain patient names and phone numbers
+sheet-backup-*.json
