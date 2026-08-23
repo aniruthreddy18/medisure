@@ -17,7 +17,8 @@
     "./razorpay": "./src/razorpay.ts",
     "./payments": "./src/payments.ts",
     "./sheets": "./src/sheets.ts",
-    "./receipt": "./src/receipt.ts"
+    "./receipt": "./src/receipt.ts",
+    "./auth": "./src/auth.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",
