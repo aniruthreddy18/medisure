@@ -28,12 +28,14 @@ export const site = {
   geo: { lat: 17.385044, lng: 78.486671 }, // TODO: client — exact map pin
 
   phone: {
-    main: "+914012345678", // TODO: client
-    booking: "+919000000000", // TODO: client
-    emergency: "+914099999999", // TODO: client — shown in header at all times
-    // Front desk — the header's "Call" button, and also the number staff use
-    // to ring patients back for a second opinion request.
-    reception: "+917989554697",
+    // The hospital runs a single public line, so main, emergency and
+    // reception are deliberately the same number rather than three.
+    main: "+919908256622",
+    booking: "+919000000000", // TODO: client — still a placeholder
+    emergency: "+919908256622", // shown in the header at all times
+    // Front desk — the header's "Call" button, and the number staff use to
+    // ring patients back about a second opinion.
+    reception: "+919908256622",
   },
   email: {
     general: "info@medisure.example", // TODO: client
