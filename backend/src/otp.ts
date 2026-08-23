@@ -284,4 +284,10 @@ async function sendVia2Factor(phone: string, code: string) {
     });
     throw new OtpError("Could not send the code right now. Please try again.", 502);
   }
+
+  // On success 2Factor returns a session id in `Details`. Logged (never the
+  // code itself) because it is the only handle for looking a delivery up in
+  // the 2Factor dashboard or quoting to their support — without it a report
+  // of "it arrived as a voice call" cannot be traced to a specific send.
+  console.info("[OTP] 2Factor accepted", { phone, session: details });
 }
