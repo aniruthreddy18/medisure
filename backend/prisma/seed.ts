@@ -394,14 +394,18 @@ async function seedContent(deptIds: Record<string, string>) {
 }
 
 async function seedAdminAndSettings() {
-  // Development credentials only. The real admin account must be created with
-  // a strong password before launch, and this seed user removed.
-  const email = "admin@medisure.local";
+  // The `email` column holds a plain username — it predates the switch to
+  // usernames and renaming it would mean a migration for no functional gain.
+  //
+  // This password is a STARTING point only: staff change it from
+  // /admin/password on first sign-in. `update: {}` means re-seeding never
+  // resets a password that has already been changed.
+  const email = "medisure";
   const passwordHash = await bcrypt.hash("ChangeMe!2026", 12);
   await db.adminUser.upsert({
     where: { email },
     update: {},
-    create: { email, passwordHash, name: "Hospital Admin", role: AdminRole.ADMIN },
+    create: { email, passwordHash, name: "MediSure Admin", role: AdminRole.ADMIN },
   });
 
   const settings: Record<string, unknown> = {

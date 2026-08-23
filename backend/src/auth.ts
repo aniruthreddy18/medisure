@@ -75,12 +75,16 @@ export function readSessionToken(token: string | undefined): string | null {
 }
 
 /**
- * Check an email and password against the AdminUser table.
+ * Check a username and password against the AdminUser table.
  *
- * Deliberately returns the same error whether the email is unknown or the
+ * The column is still called `email` — it predates the decision to use plain
+ * usernames, and renaming it would mean a migration for no functional gain.
+ * It holds a username like "medisure".
+ *
+ * Deliberately returns the same error whether the username is unknown or the
  * password is wrong: distinguishing them tells an attacker which accounts
- * exist. A bcrypt comparison still runs for an unknown email so the response
- * time does not give the answer away either.
+ * exist. A bcrypt comparison still runs for an unknown username so the
+ * response time does not give the answer away either.
  */
 export async function verifyCredentials(email: string, password: string) {
   const admin = await db.adminUser.findUnique({
@@ -91,7 +95,7 @@ export async function verifyCredentials(email: string, password: string) {
   const ok = await bcrypt.compare(password, hash);
 
   if (!admin || !admin.active || !ok) {
-    throw new AuthError("That email and password do not match.", 401);
+    throw new AuthError("That username and password do not match.", 401);
   }
 
   await db.adminUser.update({

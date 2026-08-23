@@ -9,8 +9,11 @@ import {
 
 export const dynamic = "force-dynamic";
 
+// A plain username, not an email. The AdminUser column is still called
+// `email` (renaming it would need a migration for no functional gain), but it
+// holds a username like "medisure" and is validated as such.
 const schema = z.object({
-  email: z.string().trim().email(),
+  email: z.string().trim().min(1).max(120),
   password: z.string().min(1),
 });
 
@@ -26,7 +29,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     // Same message as a failed login, so a malformed email cannot be used to
     // probe which addresses exist.
-    return NextResponse.json({ error: "That email and password do not match." }, { status: 401 });
+    return NextResponse.json({ error: "That username and password do not match." }, { status: 401 });
   }
 
   try {

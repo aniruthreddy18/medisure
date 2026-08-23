@@ -59,14 +59,16 @@ export default function AdminLoginPage() {
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-ink-700">Email</span>
+            <span className="mb-1.5 block text-sm font-medium text-ink-700">Username</span>
             <input
-              type="email"
+              type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input"
               autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
             />
           </label>
 

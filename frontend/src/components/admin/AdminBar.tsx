@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck, KeyRound } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 
 export function AdminBar({ name }: { name: string }) {
@@ -23,6 +23,14 @@ export function AdminBar({ name }: { name: string }) {
         </Link>
 
         <span className="ml-auto hidden text-sm text-ink-600 sm:block">{name}</span>
+
+        <Link
+          href="/admin/password"
+          className="ml-auto inline-flex min-h-10 items-center gap-2 rounded-lg border border-ink-200 px-3.5 text-sm font-medium text-ink-700 transition-colors hover:border-brand-400 hover:bg-brand-50 sm:ml-0"
+        >
+          <KeyRound className="size-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Password</span>
+        </Link>
 
         <button
           type="button"
