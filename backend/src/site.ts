@@ -18,24 +18,24 @@ export const site = {
 
   // TODO: client — used in JSON-LD MedicalClinic and the contact page
   address: {
-    street: "123 Hospital Road",
-    locality: "Kukatpally",
+    street: "Plot No. 292, Main Road, beside ADR Complex",
+    locality: "Vivekananda Nagar, Kukatpally",
     city: "Hyderabad",
     state: "Telangana",
-    postalCode: "500001",
+    postalCode: "500072",
     country: "IN",
   },
   geo: { lat: 17.385044, lng: 78.486671 }, // TODO: client — exact map pin
 
+  // The hospital runs a single public line, so every one of these is
+  // deliberately the same number. They stay as separate fields so a second
+  // line (a dedicated booking desk, say) can be split out later by changing
+  // one value rather than hunting through the pages.
   phone: {
-    // The hospital runs a single public line, so main, emergency and
-    // reception are deliberately the same number rather than three.
     main: "+919908256622",
-    booking: "+919000000000", // TODO: client — still a placeholder
+    booking: "+919908256622",
     emergency: "+919908256622", // shown in the header at all times
-    // Front desk — the header's "Call" button, and the number staff use to
-    // ring patients back about a second opinion.
-    reception: "+919908256622",
+    reception: "+919908256622", // header "Call" button, second-opinion callbacks
   },
   email: {
     general: "info@medisure.example", // TODO: client
