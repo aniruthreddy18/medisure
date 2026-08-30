@@ -9,7 +9,6 @@ import {
   useRazorpayCheckout,
   type PaymentOrder,
 } from "@/components/booking/useRazorpayCheckout";
-import { OtpStep } from "@/components/booking/OtpStep";
 import { formatDateLabel, formatTimeLabel } from "@medisure/backend/time";
 
 type Doctor = {
@@ -61,8 +60,6 @@ export function OpBookingFlow({
     consent: false,
   });
 
-  // Set once the mobile number is verified; the API refuses bookings without it.
-  const [verification, setVerification] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [paying, setPaying] = useState(false);
@@ -113,7 +110,6 @@ export function OpBookingFlow({
           gender: form.gender || null,
           notes: form.notes || null,
           consent: form.consent,
-          verificationToken: verification,
         }),
       });
 
@@ -350,25 +346,25 @@ export function OpBookingFlow({
           <form onSubmit={submit} noValidate>
             <h2 className="font-display text-xl font-bold text-brand-950">Patient details</h2>
 
-            {!verification ? (
-              <div className="mt-5">
-                <OtpStep
-                  phone={form.phone}
-                  onPhoneChange={(v) => setForm({ ...form, phone: v })}
-                  onVerified={(token, phone) => {
-                    setVerification(token);
-                    setForm((f) => ({ ...f, phone }));
-                  }}
-                />
-              </div>
-            ) : (
-            <>
-            <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-              <Check className="size-4" aria-hidden="true" />
-              {form.phone} verified
-            </p>
-
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Mobile number"
+                required
+                error={fieldErrors.phone?.[0]}
+                className="sm:col-span-2"
+              >
+                <input
+                  type="tel"
+                  required
+                  inputMode="numeric"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="input"
+                  autoComplete="tel"
+                  placeholder="10-digit mobile number"
+                />
+              </Field>
+
               <Field
                 label="Patient's full name"
                 required
@@ -459,8 +455,6 @@ export function OpBookingFlow({
               {submitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
               {submitting ? "Holding your place…" : "Review booking"}
             </button>
-            </>
-            )}
           </form>
         )}
 

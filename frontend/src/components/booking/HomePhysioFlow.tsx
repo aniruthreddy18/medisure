@@ -6,7 +6,6 @@ import { Check, Loader2, ArrowLeft, AlertCircle, HomeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SlotPicker } from "@/components/booking/SlotPicker";
 import { useRazorpayCheckout } from "@/components/booking/useRazorpayCheckout";
-import { OtpStep } from "@/components/booking/OtpStep";
 import { formatDateLabel, formatTimeLabel } from "@medisure/backend/time";
 
 type Physio = {
@@ -77,7 +76,6 @@ export function HomePhysioFlow({
     consent: false,
   });
 
-  const [verification, setVerification] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +112,6 @@ export function HomePhysioFlow({
           pincode: address.pincode,
           landmark: address.landmark || null,
           consent: form.consent,
-          verificationToken: verification,
           // Charges the package price, not the per-visit fee, and creates the
           // PackageBooking the remaining sessions hang off.
           packageSlug: pkg?.slug ?? null,
@@ -408,25 +405,23 @@ export function HomePhysioFlow({
           <form onSubmit={submit} noValidate>
             <h2 className="font-display text-xl font-bold text-brand-950">Patient details</h2>
 
-            {!verification ? (
-              <div className="mt-5">
-                <OtpStep
-                  phone={form.phone}
-                  onPhoneChange={(v) => setForm({ ...form, phone: v })}
-                  onVerified={(token, phone) => {
-                    setVerification(token);
-                    setForm((f) => ({ ...f, phone }));
-                  }}
-                />
-              </div>
-            ) : (
-            <>
-            <p className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-              <Check className="size-4" aria-hidden="true" />
-              {form.phone} verified
-            </p>
-
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <label className="block sm:col-span-2">
+                <span className="mb-1.5 block text-sm font-medium text-ink-700">
+                  Mobile number <span className="text-emergency">*</span>
+                </span>
+                <input
+                  type="tel"
+                  required
+                  inputMode="numeric"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="input"
+                  autoComplete="tel"
+                  placeholder="10-digit mobile number"
+                />
+              </label>
+
               <label className="block sm:col-span-2">
                 <span className="mb-1.5 block text-sm font-medium text-ink-700">
                   Patient&apos;s full name <span className="text-emergency">*</span>
@@ -492,8 +487,6 @@ export function HomePhysioFlow({
               {submitting && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
               {submitting ? "Reserving your visit…" : "Confirm & continue to payment"}
             </button>
-            </>
-            )}
           </form>
         )}
       </div>

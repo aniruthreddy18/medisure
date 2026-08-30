@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, CheckCircle2, AlertCircle, Check } from "lucide-react";
-import { OtpStep } from "@/components/booking/OtpStep";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function SecondOpinionForm({
   departments,
 }: {
   departments: { slug: string; name: string }[];
 }) {
-  const [verification, setVerification] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -30,7 +28,7 @@ export function SecondOpinionForm({
       const res = await fetch("/api/second-opinion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, verificationToken: verification }),
+        body: JSON.stringify(form),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -69,23 +67,23 @@ export function SecondOpinionForm({
         </p>
       )}
 
-      {!verification ? (
-        <OtpStep
-          phone={form.phone}
-          onPhoneChange={(v) => setForm({ ...form, phone: v })}
-          onVerified={(token, phone) => {
-            setVerification(token);
-            setForm((f) => ({ ...f, phone }));
-          }}
-        />
-      ) : (
-        <>
-          <p className="inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-            <Check className="size-4" aria-hidden="true" />
-            {form.phone} verified
-          </p>
+      <div className="grid gap-4">
+            <label className="block">
+              <span className="mb-1.5 block text-sm font-medium text-ink-700">
+                Mobile number <span className="text-emergency">*</span>
+              </span>
+              <input
+                type="tel"
+                required
+                inputMode="numeric"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="input"
+                autoComplete="tel"
+                placeholder="10-digit mobile number"
+              />
+            </label>
 
-          <div className="mt-5 grid gap-4">
             <label className="block">
               <span className="mb-1.5 block text-sm font-medium text-ink-700">
                 Your name <span className="text-emergency">*</span>
@@ -166,8 +164,6 @@ export function SecondOpinionForm({
             {busy && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
             Request a second opinion
           </button>
-        </>
-      )}
     </form>
   );
 }

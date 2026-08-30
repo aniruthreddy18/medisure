@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@medisure/backend/db";
-import { consumeVerification, normalisePhone, OtpError } from "@medisure/backend/otp";
+import { normalisePhone, isValidIndianMobile } from "@medisure/backend/phone";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,6 @@ const schema = z.object({
   email: z.string().trim().email().optional().or(z.literal("")).nullable(),
   departmentSlug: z.string().trim().optional().nullable(),
   description: z.string().trim().min(10, "Please describe the problem briefly").max(2000),
-  verificationToken: z.string().min(10, "Please verify your mobile number"),
   consent: z.literal(true, { message: "Please accept the consent statement to continue" }),
 });
 
@@ -40,21 +39,14 @@ export async function POST(request: Request) {
   }
   const data = parsed.data;
 
-  let phone: string;
-  try {
-    phone = await consumeVerification(data.verificationToken);
-  } catch (error) {
-    if (error instanceof OtpError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    throw error;
-  }
-  if (phone !== normalisePhone(data.phone)) {
+  // Taken as typed — nothing verifies the requester owns this number.
+  if (!isValidIndianMobile(data.phone)) {
     return NextResponse.json(
-      { error: "That mobile number does not match the one you verified." },
+      { error: "Enter a valid 10-digit Indian mobile number." },
       { status: 400 },
     );
   }
+  const phone = normalisePhone(data.phone);
 
   const department = data.departmentSlug
     ? await db.department.findFirst({ where: { slug: data.departmentSlug, active: true } })

@@ -25,7 +25,6 @@ const columns = [
       { label: "Home Physiotherapy", href: "/home-physiotherapy" },
       { label: "Insurance & TPA", href: "/insurance" },
       { label: "Free Second Opinion", href: "/second-opinion" },
-      { label: "Manage a Booking", href: "/manage" },
     ],
   },
   {

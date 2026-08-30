@@ -9,7 +9,6 @@
     "./queries": "./src/queries.ts",
     "./slots": "./src/slots.ts",
     "./booking": "./src/booking.ts",
-    "./otp": "./src/otp.ts",
     "./time": "./src/time.ts",
     "./site": "./src/site.ts",
     "./prisma": "./src/generated/prisma/client.ts",
@@ -18,7 +17,8 @@
     "./payments": "./src/payments.ts",
     "./sheets": "./src/sheets.ts",
     "./receipt": "./src/receipt.ts",
-    "./auth": "./src/auth.ts"
+    "./auth": "./src/auth.ts",
+    "./phone": "./src/phone.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",

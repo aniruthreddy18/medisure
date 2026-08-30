@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@medisure/backend/db";
 import { createHold, createPackagePurchase, SlotUnavailableError } from "@medisure/backend/booking";
-import { consumeVerification, normalisePhone, OtpError } from "@medisure/backend/otp";
+import { normalisePhone, isValidIndianMobile } from "@medisure/backend/phone";
 import { createPaymentOrder } from "@medisure/backend/payments";
 import { db as _db } from "@medisure/backend/db";
 import { site } from "@medisure/backend/site";
@@ -44,7 +44,6 @@ const bookingSchema = z.object({
   packageBookingId: z.string().optional().nullable(),
 
   /** Proof the mobile number was verified by OTP. */
-  verificationToken: z.string().min(10, "Please verify your mobile number"),
 
   /** Explicit consent to be contacted — recorded, not assumed (DPDP). */
   consent: z.literal(true, { message: "Please accept the consent statement to continue" }),
@@ -108,27 +107,18 @@ export async function POST(request: Request) {
   }
 
   /**
-   * The phone number comes from the verification record, never from the form.
-   * Otherwise someone could verify their own number and then book under
-   * somebody else's — which would send that person's confirmations and let
-   * them cancel a stranger's appointment from /manage.
+   * Bookings are no longer phone-verified — the number is taken as typed.
+   * It is still normalised to +91XXXXXXXXXX so the front desk gets a dialable
+   * number, and still shape-checked, but nothing proves the person booking
+   * owns it. Mistyped and deliberately false numbers now reach the calendar.
    */
-  let phone: string;
-  try {
-    phone = await consumeVerification(data.verificationToken);
-  } catch (error) {
-    if (error instanceof OtpError) {
-      return NextResponse.json({ error: error.message }, { status: error.status });
-    }
-    throw error;
-  }
-
-  if (phone !== normalisePhone(data.phone)) {
+  if (!isValidIndianMobile(data.phone)) {
     return NextResponse.json(
-      { error: "That mobile number does not match the one you verified." },
+      { error: "Enter a valid 10-digit Indian mobile number." },
       { status: 400 },
     );
   }
+  const phone = normalisePhone(data.phone);
 
   // --- Package purchase branch -------------------------------------------
   if (data.packageSlug) {
