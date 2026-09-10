@@ -393,6 +393,57 @@ async function seedContent(deptIds: Record<string, string>) {
   }
 }
 
+/**
+ * Hospital photographs, supplied by the client.
+ *
+ * Ordered as a visitor actually experiences the place — arriving outside,
+ * through reception, into consulting rooms, then wards and facilities —
+ * rather than by the filename order they came off the phone in. `category`
+ * drives the section headings on the gallery page.
+ *
+ * All are 9:16 (phone camera), which is why the gallery renders them in that
+ * ratio: any other aspect would crop a quarter of every photo away.
+ */
+async function seedGallery() {
+  const photos: { image: string; caption: string; category: string }[] = [
+    // Arriving
+    { image: "/media/gallery/gallery-18.jpg", caption: "MediSure Hospital, Kukatpally", category: "outside" },
+    { image: "/media/gallery/gallery-13.jpg", caption: "Consultant listings at the entrance", category: "outside" },
+    { image: "/media/gallery/gallery-14.jpg", caption: "Ambulance bay at the main entrance", category: "outside" },
+    { image: "/media/gallery/gallery-02.jpg", caption: "Ambulance ready at the hospital", category: "outside" },
+    { image: "/media/gallery/gallery-19.jpg", caption: "Entrance lobby", category: "outside" },
+
+    // Reception and waiting
+    { image: "/media/gallery/gallery-05.jpg", caption: "Reception desk", category: "reception" },
+    { image: "/media/gallery/gallery-06.jpg", caption: "Waiting area", category: "reception" },
+    { image: "/media/gallery/gallery-10.jpg", caption: "Seating outside the consulting rooms", category: "reception" },
+    { image: "/media/gallery/gallery-08.jpg", caption: "Corridor to the consulting rooms", category: "reception" },
+
+    // Consulting
+    { image: "/media/gallery/gallery-11.jpg", caption: "Consultant's room", category: "consulting" },
+    { image: "/media/gallery/gallery-09.jpg", caption: "Consulting room", category: "consulting" },
+    { image: "/media/gallery/gallery-12.jpg", caption: "Consulting room with examination couch", category: "consulting" },
+    { image: "/media/gallery/gallery-17.jpg", caption: "Treatment room", category: "consulting" },
+
+    // Wards
+    { image: "/media/gallery/gallery-03.jpg", caption: "Two-bed ward", category: "wards" },
+    { image: "/media/gallery/gallery-04.jpg", caption: "Patient room with bedside monitoring", category: "wards" },
+    { image: "/media/gallery/gallery-01.jpg", caption: "Private room", category: "wards" },
+    { image: "/media/gallery/gallery-15.jpg", caption: "Ward bed and monitor", category: "wards" },
+    { image: "/media/gallery/gallery-07.jpg", caption: "Intensive care unit", category: "wards" },
+
+    // Facilities
+    { image: "/media/gallery/gallery-16.jpg", caption: "In-house pharmacy", category: "facilities" },
+  ];
+
+  for (const [i, p] of photos.entries()) {
+    const existing = await db.galleryImage.findFirst({ where: { image: p.image } });
+    const data = { ...p, order: i, active: true };
+    if (existing) await db.galleryImage.update({ where: { id: existing.id }, data });
+    else await db.galleryImage.create({ data });
+  }
+}
+
 async function seedAdminAndSettings() {
   // The `email` column holds a plain username — it predates the switch to
   // usernames and renaming it would mean a migration for no functional gain.
@@ -435,6 +486,7 @@ async function main() {
   await seedSchedules(doctors);
   await seedPackages();
   await seedContent(deptIds);
+  await seedGallery();
   await seedAdminAndSettings();
 
   const counts = {
@@ -443,14 +495,14 @@ async function main() {
     doctors: await db.doctor.count(),
     schedules: await db.doctorSchedule.count(),
     packages: await db.servicePackage.count(),
-    achievements: await db.achievement.count(),
     testimonials: await db.testimonial.count(),
     videos: await db.video.count(),
     faqs: await db.faq.count(),
     insurers: await db.insurer.count(),
+    galleryImages: await db.galleryImage.count(),
   };
   console.table(counts);
-  console.log("Seed complete. Admin: admin@medisure.local / ChangeMe!2026");
+  console.log("Seed complete.");
 }
 
 main()

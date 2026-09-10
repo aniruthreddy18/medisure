@@ -23,8 +23,8 @@ export const revalidate = 300;
  * Homepage section order, as specified by the client:
  *   hero → specialities → insurance → experience → reels → patient stories → FAQ
  *
- * Achievements and the doctor panel deliberately do NOT appear here — both
- * live on their own pages, reached from the nav, so the homepage stays short.
+ * The doctor panel deliberately does NOT appear here — it lives on its own
+ * page, reached from the nav, so the homepage stays short.
  */
 export default async function HomePage() {
   const [coreDepts, testimonials, faqs, insurers, stats] = await Promise.all([

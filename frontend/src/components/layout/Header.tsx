@@ -13,7 +13,7 @@ const nav = [
   { label: "About", href: "/about" },
   { label: "Doctors", href: "/doctors" },
   { label: "Medical Services", href: "/medical-services" },
-  { label: "Achievements", href: "/achievements" },
+  { label: "Gallery", href: "/gallery" },
 ];
 
 /**

@@ -32,7 +32,6 @@ const columns = [
     links: [
       { label: "About Us", href: "/about" },
       { label: "Our Doctors", href: "/doctors" },
-      { label: "Achievements", href: "/achievements" },
       { label: "Patient Stories", href: "/testimonials" },
       { label: "Gallery", href: "/gallery" },
       { label: "Contact", href: "/contact" },

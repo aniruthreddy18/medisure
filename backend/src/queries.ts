@@ -9,22 +9,6 @@ import { db } from "./db";
  * `order` column so staff can arrange sections without a developer.
  */
 
-export function getHeroAchievements() {
-  return db.achievement.findMany({
-    where: { active: true, showInHero: true },
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-    take: 8,
-  });
-}
-
-export function getNewsAchievements(take = 5) {
-  return db.achievement.findMany({
-    where: { active: true, isNews: true },
-    orderBy: [{ year: "desc" }, { order: "asc" }],
-    take,
-  });
-}
-
 export function getCoreDepartments() {
   return db.department.findMany({
     where: { active: true, isCore: true },
