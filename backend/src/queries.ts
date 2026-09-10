@@ -149,14 +149,6 @@ export function getTestimonials(take?: number) {
   });
 }
 
-export function getVideos(take?: number) {
-  return db.video.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-    take,
-  });
-}
-
 export function getFaqs(category?: string) {
   return db.faq.findMany({
     where: { active: true, ...(category ? { category } : {}) },

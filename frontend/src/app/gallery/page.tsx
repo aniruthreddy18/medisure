@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
-import { VideoGrid } from "@/components/video/VideoGrid";
 import { GalleryGrid, type GalleryPhoto } from "@/components/gallery/GalleryGrid";
-import { getVideos } from "@medisure/backend/queries";
 import { db } from "@medisure/backend/db";
 import { site } from "@medisure/backend/site";
 
@@ -48,10 +46,10 @@ const SECTIONS: { key: string; title: string; blurb: string }[] = [
 ];
 
 export default async function GalleryPage() {
-  const [videos, images] = await Promise.all([
-    getVideos(),
-    db.galleryImage.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
-  ]);
+  const images = await db.galleryImage.findMany({
+    where: { active: true },
+    orderBy: { order: "asc" },
+  });
 
   const grouped = SECTIONS.map((section) => ({
     ...section,
@@ -86,7 +84,7 @@ export default async function GalleryPage() {
       </header>
 
       <Container className="py-12 lg:py-16">
-        {images.length === 0 && videos.length === 0 ? (
+        {images.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-border p-12 text-center text-ink-600">
             Photographs will appear here once they are uploaded.
           </p>
@@ -127,19 +125,6 @@ export default async function GalleryPage() {
           </section>
         )}
 
-        {videos.length > 0 && (
-          <section aria-labelledby="all-videos" className="mt-14 lg:mt-20">
-            <h2
-              id="all-videos"
-              className="font-display text-2xl font-bold text-brand-950 sm:text-3xl"
-            >
-              Videos
-            </h2>
-            <div className="mt-6">
-              <VideoGrid videos={videos} />
-            </div>
-          </section>
-        )}
       </Container>
     </>
   );
