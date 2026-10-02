@@ -586,6 +586,45 @@ model Testimonial {
   @@index([approved, active, order])
 }
 
+/// A star rating and a line or two, written by anyone who visits the site.
+///
+/// Deliberately NOT the same thing as `Testimonial` above. A testimonial is a
+/// curated case study — condition, treatment, outcome — that needs written
+/// patient consent on file before it may be published. A review is just an
+/// opinion somebody typed, it goes live the moment it is posted, and it is
+/// never attached to a booking or an account: tying one to a visit would put
+/// a patient's name beside their condition, and asking someone to sign in to
+/// say thank you loses most of the thank-yous.
+model Review {
+  id String @id @default(cuid())
+
+  /// What the reviewer wants to be called. Free text — a first name, initials,
+  /// or whatever they type; never checked against a booking.
+  name String
+
+  /// 1 to 5. Range is enforced in `reviews.ts` rather than by a database
+  /// constraint, so a bad value reaches the form as a message instead of
+  /// surfacing as a 500 in the logs.
+  rating Int
+
+  /// The review itself.
+  comment String @db.Text
+
+  /// Which speciality they are talking about, if they said. Free text rather
+  /// than a relation to Department: a patient writes "physio", not a
+  /// department id, and a review should survive a department being renamed
+  /// or deactivated.
+  speciality String?
+
+  /// Set to true to take a review off the site. Nothing sets it
+  /// automatically — there is no approval queue, by design.
+  hidden Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([hidden, createdAt])
+}
+
 model Video {
   id          String  @id @default(cuid())
   title       String

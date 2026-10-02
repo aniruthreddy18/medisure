@@ -101,3 +101,20 @@ export function upcomingDateKeys(count: number): string[] {
     return toDateKey(d);
   });
 }
+
+/**
+ * A timestamp (not a `@db.Date`) as a date label in the hospital's timezone:
+ * "19 August 2026".
+ *
+ * Use this — not `toDateKey` — on `createdAt` and other real instants.
+ * `toDateKey` reads UTC components, which is correct for date columns but a
+ * day behind the Indian calendar date between 18:30 and midnight.
+ */
+export function formatInstantDate(instant: Date): string {
+  return instant.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: TZ,
+  });
+}

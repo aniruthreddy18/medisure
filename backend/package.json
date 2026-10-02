@@ -18,7 +18,8 @@
     "./sheets": "./src/sheets.ts",
     "./receipt": "./src/receipt.ts",
     "./auth": "./src/auth.ts",
-    "./phone": "./src/phone.ts"
+    "./phone": "./src/phone.ts",
+    "./reviews": "./src/reviews.ts"
   },
   "scripts": {
     "db:generate": "prisma generate",

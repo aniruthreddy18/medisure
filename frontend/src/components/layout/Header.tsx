@@ -14,6 +14,7 @@ const nav = [
   { label: "Doctors", href: "/doctors" },
   { label: "Medical Services", href: "/medical-services" },
   { label: "Gallery", href: "/gallery" },
+  { label: "Reviews", href: "/reviews" },
 ];
 
 /**
